@@ -1,5 +1,9 @@
 from ast_nodes import *
 
+class ReturnException(Exception):
+    def __init__(self, value):
+        self.value = value
+
 class Function:
     def __init__(self, def_node, env):
         self.def_node = def_node
@@ -49,10 +53,8 @@ class Interpreter:
         elif isinstance(node, BinaryOp):
             left = self.eval(node.left)
             right = self.eval(node.right)
-            if node.op == "+":
-                if isinstance(left, str) or isinstance(right, str):
-                    return str(left) + str(right)
-                return left + right
+
+            if node.op == "+": return str(left) + str(right) if isinstance(left, str) or isinstance(right, str) else left + right
             if node.op == "-": return left - right
             if node.op == "*": return left * right
             if node.op == "/": return left / right
@@ -90,7 +92,7 @@ class Interpreter:
             return self.eval_function_call(node)
 
         elif isinstance(node, ReturnStatement):
-            return self.eval(node.expr)
+            raise ReturnException(self.eval(node.expr))
 
         else:
             raise Exception(f"Unknown node type: {node}")
@@ -102,7 +104,6 @@ class Interpreter:
         if len(node.args) != len(func.def_node.params):
             raise Exception("Argument count mismatch")
 
-        # create local environment
         new_env = Environment(parent=func.env)
         for (typ, name), arg in zip(func.def_node.params, node.args):
             new_env.set(name, self.eval(arg))
@@ -110,13 +111,13 @@ class Interpreter:
         prev_env = self.env
         self.env = new_env
 
-        ret_val = None
-        for stmt in func.def_node.body:
-            if isinstance(stmt, ReturnStatement):
-                ret_val = self.eval(stmt.expr)
-                break
-            else:
+        try:
+            for stmt in func.def_node.body:
                 self.eval(stmt)
+        except ReturnException as e:
+            ret_val = e.value
+        else:
+            ret_val = None
 
         self.env = prev_env
         return ret_val

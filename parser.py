@@ -42,7 +42,8 @@ class Parser:
             expr = self.expr()
             return ReturnStatement(expr)
         else:
-            return self.expr()
+            return self.assignment_or_expr()
+
     def block(self):
         self.consume("LBRACE")
         stmts = []
@@ -67,6 +68,10 @@ class Parser:
                 self.consume("OP", "=")
                 value = self.expr()
                 return Assignment(name, value)
+            elif self.peek()[0] == "LPAREN":
+                # function call
+                self.pos -= 1  # step back so term() can handle it
+                return self.term()
             else:
                 return Identifier(name)
         else:
@@ -103,67 +108,87 @@ class Parser:
         self.consume("RPAREN")
         body = self.block()
         return ForLoop(init, condition, update, body)
-    
+
     def print_stmt(self):
         self.consume(None, "print")
         self.consume("LPAREN")
         expr = self.expr()
         self.consume("RPAREN")
         return PrintStatement(expr)
-    
+
     def function_def(self):
-        self.consume(None, "fnc")
-        name = self.consume("ID")[1]
-        self.consume("LPAREN")
-        params = []
-        while self.peek()[0] != "RPAREN":
-            param_type = self.consume("ID")[1]
-            param_name = self.consume("ID")[1]
-            params.append((param_type, param_name))
-            if self.peek()[0] == "COMMA":
-                self.consume("COMMA")
-        self.consume("RPAREN")
-        body = self.block()
-        return FunctionDef(name, params, body)
+      self.consume(None, "fnc")
+      name = self.consume("ID")[1]
+      self.consume("LPAREN")
+      params = []
+      while self.peek()[0] != "RPAREN":
+        # Check if type is present or just a name
+        next_tok = self.peek()
+        param_type = None
+        param_name = None
+        if next_tok[0] == "ID":
+            # Consume first ID
+            first_id = self.consume("ID")[1]
+            # If next is also ID, treat as type+name
+            if self.peek()[0] == "ID":
+                param_type = first_id
+                param_name = self.consume("ID")[1]
+            else:
+                # Only a name, no type
+                param_name = first_id
+        params.append((param_type, param_name))
+        if self.peek()[0] == "COMMA":
+            self.consume("COMMA")
+      self.consume("RPAREN")
+      body = self.block()
+      return FunctionDef(name, params, body)
 
+    # ----- Expressions -----
     def expr(self):
-      left = self.term()
-      while self.peek()[1] in ["+", "-", "==", "<", ">", "<=", ">="]:
-        op = self.consume()[1]
-        right = self.term()
-        left = BinaryOp(left, op, right)
-
-      return left
+        left = self.term()
+        while self.peek()[1] in ["+", "-", "==", "<", ">", "<=", ">="]:
+            op = self.consume()[1]
+            right = self.term()
+            left = BinaryOp(left, op, right)
+        return left
 
     def term(self):
-      tok = self.peek()
-      if tok[0] == "NUMBER":
-        self.consume()
-        return Literal(float(tok[1]) if "." in tok[1] else int(tok[1]))
-      elif tok[0] == "STRING":
-        self.consume()
-        return Literal(tok[1].strip('"'))
-      elif tok[0] == "BOOL":
-        self.consume()
-        return Literal(True if tok[1] == "true" else False)
-      elif tok[0] == "ID":
-        name = self.consume("ID")[1]
-        # check for function call
-        if self.peek()[0] == "LPAREN":
+        left = self.factor()
+        while self.peek()[1] in ["*", "/"]:
+            op = self.consume()[1]
+            right = self.factor()
+            left = BinaryOp(left, op, right)
+        return left
+
+    def factor(self):
+        tok = self.peek()
+        if tok[0] == "NUMBER":
+            self.consume()
+            return Literal(float(tok[1]) if "." in tok[1] else int(tok[1]))
+        elif tok[0] == "STRING":
+            self.consume()
+            return Literal(tok[1].strip('"'))
+        elif tok[0] == "BOOL":
+            self.consume()
+            return Literal(True if tok[1] == "true" else False)
+        elif tok[0] == "ID":
+            name = self.consume("ID")[1]
+            # function call
+            if self.peek()[0] == "LPAREN":
+                self.consume("LPAREN")
+                args = []
+                while self.peek()[0] != "RPAREN":
+                    args.append(self.expr())
+                    if self.peek()[0] == "COMMA":
+                        self.consume("COMMA")
+                self.consume("RPAREN")
+                return FunctionCall(name, args)
+            else:
+                return Identifier(name)
+        elif tok[0] == "LPAREN":
             self.consume("LPAREN")
-            args = []
-            while self.peek()[0] != "RPAREN":
-                args.append(self.expr())
-                if self.peek()[0] == "COMMA":
-                    self.consume("COMMA")
+            expr = self.expr()
             self.consume("RPAREN")
-            return FunctionCall(name, args)
+            return expr
         else:
-            return Identifier(name)
-      elif tok[0] == "LPAREN":
-        self.consume("LPAREN")
-        expr = self.expr()
-        self.consume("RPAREN")
-        return expr
-      else:
-        raise SyntaxError(f"Unexpected token in term: {tok}")
+            raise SyntaxError(f"Unexpected token in factor: {tok}")

@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=Function support update"
+if "%MSG%"=="" set "MSG=Minor bug (i forgot to add * and / hehe)"
 
 git status
 

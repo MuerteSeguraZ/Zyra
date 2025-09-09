@@ -3,17 +3,11 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-fnc greet(string name) {
-    print("Hello, " + name)
-}
-
-greet("betatester!")
-
-fnc add(int a, int b) {
-    return a + b
-}
-
-dec int result = add(2, 3)
+fnc test(x) { 
+    if (x > 5) { return x * 2 } 
+    return x + 1 
+} 
+dec int result = test(10)
 print(result)
 """
 
