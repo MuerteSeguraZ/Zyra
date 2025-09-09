@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=Uhh i think it was break and continue"
+if "%MSG%"=="" set "MSG=comments (//) and multi-line comments (/* */)!!!!!"
 
 git status
 

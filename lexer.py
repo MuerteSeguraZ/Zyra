@@ -21,6 +21,10 @@ TOKEN_SPEC = [
 ]
 
 def tokenize(code):
+    # Remove comments first
+    code = re.sub(r"//.*", "", code)         # single-line comments
+    code = re.sub(r"/\*.*?\*/", "", code, flags=re.DOTALL)  # multi-line comments
+
     regex = "|".join(f"(?P<{name}>{pattern})" for name, pattern in TOKEN_SPEC)
     tokens = []
     for m in re.finditer(regex, code):
