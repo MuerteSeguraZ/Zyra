@@ -1,0 +1,34 @@
+import re
+
+TOKEN_SPEC = [
+    ("NUMBER", r"\d+(\.\d+)?"),
+    ("STRING", r"\".*?\""),
+    ("BOOL", r"(true|false)"),
+    ("ID", r"[A-Za-z_][A-Za-z0-9_]*"),
+
+    # Multi-character operators must come before single-char
+    ("OP", r"(==|!=|<=|>=|\+|\-|\*|/|=|<|>)"),
+
+    ("LPAREN", r"\("),
+    ("RPAREN", r"\)"),
+    ("LBRACE", r"\{"),
+    ("RBRACE", r"\}"),
+    ("SEMICOL", r";"),
+    ("COMMA", r","),
+
+    ("SKIP", r"[ \t\n]+"),
+    ("MISMATCH", r"."),
+]
+
+def tokenize(code):
+    regex = "|".join(f"(?P<{name}>{pattern})" for name, pattern in TOKEN_SPEC)
+    tokens = []
+    for m in re.finditer(regex, code):
+        kind = m.lastgroup
+        value = m.group()
+        if kind == "SKIP":
+            continue
+        elif kind == "MISMATCH":
+            raise SyntaxError(f"Unexpected token: {value}")
+        tokens.append((kind, value))
+    return tokens
