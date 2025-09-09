@@ -72,3 +72,9 @@ class BreakStatement(Node):
 
 class ContinueStatement(Node):
     pass
+
+class SwitchStatement:
+    def __init__(self, expr, cases, default=None):
+        self.expr = expr
+        self.cases = cases # tuples
+        self.default = default

@@ -14,6 +14,7 @@ TOKEN_SPEC = [
     ("LBRACE", r"\{"),
     ("RBRACE", r"\}"),
     ("SEMICOL", r";"),
+    ("COLON", r":"),
     ("COMMA", r","),
 
     ("SKIP", r"[ \t\n]+"),

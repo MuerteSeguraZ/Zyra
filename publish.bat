@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=comments (//) and multi-line comments (/* */)!!!!!"
+if "%MSG%"=="" set "MSG=switch/case support!!!!!"
 
 git status
 

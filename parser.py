@@ -47,6 +47,8 @@ class Parser:
         elif tok[1] == "continue":
             self.consume(None, "continue")
             return ContinueStatement()
+        elif tok[1] == "switch":
+            return self.switch_stmt()
         else:
             return self.assignment_or_expr()
 
@@ -121,6 +123,38 @@ class Parser:
         expr = self.expr()
         self.consume("RPAREN")
         return PrintStatement(expr)
+    
+    def switch_stmt(self):
+        self.consume(None, "switch")
+        self.consume("LPAREN")
+        expr = self.expr()
+        self.consume("RPAREN")
+        self.consume("LBRACE")
+
+        cases = []
+        default_body = None
+
+        while self.peek()[0] != "RBRACE":
+            tok = self.peek()
+            if tok[1] == "case":
+                self.consume()
+                case_expr = self.expr()
+                self.consume("COLON")
+                body = []
+                while self.peek()[1] not in ("case", "default", "}"):
+                    body.append(self.statement())
+                cases.append((case_expr, body))
+            elif tok[1] == "default":
+                self.consume()
+                self.consume("COLON")
+                default_body = []
+                while self.peek()[1] != "}":
+                    default_body.append(self.statement())
+            else:
+                raise SyntaxError(f"Unexpected token in switch: {tok}")
+            
+        self.consume("RBRACE")
+        return SwitchStatement(expr, cases, default_body)
 
     def function_def(self):
       self.consume(None, "fnc")

@@ -103,6 +103,24 @@ class Interpreter:
             except BreakException:
                 pass
             
+        elif isinstance(node, SwitchStatement):
+            switch_val = self.eval(node.expr)
+            executed = False
+            for case_val, stmts in node.cases:
+                if switch_val == self.eval(case_val):
+                    for stmt in stmts:
+                        if isinstance(stmt, BreakStatement):
+                            executed = True
+                            break
+                        if isinstance(stmt, ContinueStatement):
+                            continue
+                        self.eval(stmt)
+                    executed = True
+                    break
+            if not executed and node.default:
+                for stmt in node.default:
+                    self.eval(stmt)
+            
         elif isinstance(node, BreakStatement):
             raise BreakException()
         

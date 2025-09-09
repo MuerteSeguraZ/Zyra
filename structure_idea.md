@@ -5,3 +5,5 @@ zyra/
 │── interpreter.py  # executes the AST
 │── runtime.py      # environment, variables, exceptions
 │── main.py         # entry point (runs Zyra code)
+
+btw my idea is that the extension is .zy
