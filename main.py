@@ -3,16 +3,18 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-dec int x = 0
-
-while (x < 5) {
-    if (x == 2) {
-        print("x is two")
-    } else {
-        print("x is " + x)
-    }
-    x = x + 1
+fnc greet(string name) {
+    print("Hello, " + name)
 }
+
+greet("betatester!")
+
+fnc add(int a, int b) {
+    return a + b
+}
+
+dec int result = add(2, 3)
+print(result)
 """
 
 tokens = tokenize(code)
@@ -20,5 +22,3 @@ parser = Parser(tokens)
 ast = parser.parse()
 interpreter = Interpreter()
 interpreter.eval(ast)
-
-print("Environment:", interpreter.env.vars)

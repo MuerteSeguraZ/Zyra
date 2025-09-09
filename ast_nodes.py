@@ -48,10 +48,14 @@ class ForLoop(Node):
         self.update = update
         self.body = body
 
+class PrintStatement(Node):
+    def __init__(self, expr):
+        self.expr = expr
+
 class FunctionDef(Node):
     def __init__(self, name, params, body):
         self.name = name
-        self.params = params
+        self.params = params  # list of (type, name)
         self.body = body
 
 class FunctionCall(Node):
@@ -59,6 +63,6 @@ class FunctionCall(Node):
         self.name = name
         self.args = args
 
-class PrintStatement(Node):
+class ReturnStatement(Node):
     def __init__(self, expr):
         self.expr = expr

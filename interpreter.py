@@ -1,8 +1,25 @@
 from ast_nodes import *
 
+class Function:
+    def __init__(self, def_node, env):
+        self.def_node = def_node
+        self.env = env
+
 class Environment:
-    def __init__(self):
+    def __init__(self, parent=None):
         self.vars = {}
+        self.parent = parent
+
+    def get(self, name):
+        if name in self.vars:
+            return self.vars[name]
+        elif self.parent:
+            return self.parent.get(name)
+        else:
+            raise Exception(f"Variable '{name}' not defined")
+
+    def set(self, name, value):
+        self.vars[name] = value
 
 class Interpreter:
     def __init__(self):
@@ -14,17 +31,17 @@ class Interpreter:
                 self.eval(stmt)
 
         elif isinstance(node, VarDecl):
-            self.env.vars[node.name] = self.eval(node.value)
+            self.env.set(node.name, self.eval(node.value))
 
         elif isinstance(node, Assignment):
-            self.env.vars[node.name] = self.eval(node.value)
+            self.env.set(node.name, self.eval(node.value))
 
         elif isinstance(node, Identifier):
-            return self.env.vars.get(node.name)
+            return self.env.get(node.name)
 
         elif isinstance(node, Literal):
             return node.value
-        
+
         elif isinstance(node, PrintStatement):
             value = self.eval(node.expr)
             print(value)
@@ -32,7 +49,6 @@ class Interpreter:
         elif isinstance(node, BinaryOp):
             left = self.eval(node.left)
             right = self.eval(node.right)
-
             if node.op == "+":
                 if isinstance(left, str) or isinstance(right, str):
                     return str(left) + str(right)
@@ -67,5 +83,40 @@ class Interpreter:
                     self.eval(stmt)
                 self.eval(node.update)
 
+        elif isinstance(node, FunctionDef):
+            self.env.set(node.name, Function(node, self.env))
+
+        elif isinstance(node, FunctionCall):
+            return self.eval_function_call(node)
+
+        elif isinstance(node, ReturnStatement):
+            return self.eval(node.expr)
+
         else:
             raise Exception(f"Unknown node type: {node}")
+
+    def eval_function_call(self, node):
+        func = self.env.get(node.name)
+        if not isinstance(func, Function):
+            raise Exception(f"'{node.name}' is not a function")
+        if len(node.args) != len(func.def_node.params):
+            raise Exception("Argument count mismatch")
+
+        # create local environment
+        new_env = Environment(parent=func.env)
+        for (typ, name), arg in zip(func.def_node.params, node.args):
+            new_env.set(name, self.eval(arg))
+
+        prev_env = self.env
+        self.env = new_env
+
+        ret_val = None
+        for stmt in func.def_node.body:
+            if isinstance(stmt, ReturnStatement):
+                ret_val = self.eval(stmt.expr)
+                break
+            else:
+                self.eval(stmt)
+
+        self.env = prev_env
+        return ret_val
