@@ -66,3 +66,9 @@ class FunctionCall(Node):
 class ReturnStatement(Node):
     def __init__(self, expr):
         self.expr = expr
+
+class BreakStatement(Node):
+    pass
+
+class ContinueStatement(Node):
+    pass

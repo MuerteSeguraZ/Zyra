@@ -4,6 +4,12 @@ class ReturnException(Exception):
     def __init__(self, value):
         self.value = value
 
+class BreakException(Exception):
+    pass
+
+class ContinueException(Exception):
+    pass
+
 class Function:
     def __init__(self, def_node, env):
         self.def_node = def_node
@@ -74,16 +80,34 @@ class Interpreter:
                     self.eval(stmt)
 
         elif isinstance(node, WhileLoop):
-            while self.eval(node.condition):
-                for stmt in node.body:
-                    self.eval(stmt)
+            try:
+                while self.eval(node.condition):
+                    try:
+                        for stmt in node.body:
+                            self.eval(stmt)
+                    except ContinueException:
+                        continue
+            except BreakException:
+                pass
 
         elif isinstance(node, ForLoop):
             self.eval(node.init)
-            while self.eval(node.condition):
-                for stmt in node.body:
-                    self.eval(stmt)
-                self.eval(node.update)
+            try:
+                while self.eval(node.condition):
+                    try:
+                        for stmt in node.body:
+                            self.eval(stmt)
+                    except ContinueException:
+                        pass
+                    self.eval(node.update)
+            except BreakException:
+                pass
+            
+        elif isinstance(node, BreakStatement):
+            raise BreakException()
+        
+        elif isinstance(node, ContinueStatement):
+            raise ContinueException()
 
         elif isinstance(node, FunctionDef):
             self.env.set(node.name, Function(node, self.env))

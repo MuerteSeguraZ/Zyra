@@ -3,12 +3,17 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-fnc test(x) { 
-    if (x > 5) { return x * 2 } 
-    return x + 1 
-} 
-dec int result = test(10)
-print(result)
+fnc loop_test() {
+    dec int i = 0
+    while (i < 10) {
+        i = i + 1
+        if (i == 3) { continue }   
+        if (i == 7) { break }      
+        print(i)
+    }
+}
+
+loop_test()
 """
 
 tokens = tokenize(code)

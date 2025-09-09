@@ -41,6 +41,12 @@ class Parser:
             self.consume(None, "return")
             expr = self.expr()
             return ReturnStatement(expr)
+        elif tok[1] == "break":
+            self.consume(None, "break")
+            return BreakStatement()
+        elif tok[1] == "continue":
+            self.consume(None, "continue")
+            return ContinueStatement()
         else:
             return self.assignment_or_expr()
 
