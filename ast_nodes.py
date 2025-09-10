@@ -83,3 +83,14 @@ class UnaryOp:
     def __init__(self, op, expr):
         self.op = op
         self.expr = expr
+
+class TryCatchStatement:
+    def __init__(self, try_block, catch_var, catch_block):
+        self.try_block = try_block
+        self.catch_var = catch_var
+        self.catch_block = catch_block
+
+class ThrowStatement:
+    def __init__(self, expr):
+        self.expr = expr
+

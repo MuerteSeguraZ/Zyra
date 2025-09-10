@@ -49,6 +49,12 @@ class Parser:
             return ContinueStatement()
         elif tok[1] == "switch":
             return self.switch_stmt()
+        elif tok[1] == "try":
+            return self.try_catch_stmt()
+        elif tok[1] == "throw":
+            self.consume(None, "throw")
+            expr = self.expr()
+            return ThrowStatement(expr)
         else:
             return self.assignment_or_expr()
 
@@ -123,6 +129,20 @@ class Parser:
         expr = self.expr()
         self.consume("RPAREN")
         return PrintStatement(expr)
+    
+    def try_catch_stmt(self):
+        self.consume(None, "try")
+        try_block = self.block()
+
+        self.consume(None, "catch")
+        catch_var = None
+        if self.peek()[0] == "LPAREN":
+            self.consume("LPAREN")
+            catch_var = self.consume("ID")[1]
+            self.consume("RPAREN")
+        catch_block = self.block()
+
+        return TryCatchStatement(try_block, catch_var, catch_block)
     
     def switch_stmt(self):
         self.consume(None, "switch")

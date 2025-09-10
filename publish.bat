@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=oops forgot not mb here ya go :)"
+if "%MSG%"=="" set "MSG=try/catch/throw update!!!!!!"
 
 git status
 

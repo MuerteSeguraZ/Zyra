@@ -56,6 +56,20 @@ class Interpreter:
             value = self.eval(node.expr)
             print(value)
 
+        elif isinstance(node, ThrowStatement):
+            value = self.eval(node.expr)
+            raise Exception(value)
+
+        elif isinstance(node, TryCatchStatement):
+            try:
+                for stmt in node.try_block:
+                    self.eval(stmt)
+            except Exception as e:
+                if node.catch_var:
+                    self.env.set(node.catch_var, str(e))
+                for stmt in node.catch_block:
+                    self.eval(stmt)
+
         elif isinstance(node, BinaryOp):
             left = self.eval(node.left)
             right = self.eval(node.right)

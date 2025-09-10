@@ -3,9 +3,11 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-print(not true)    
-print(not false)   
-print(not (5 > 10)) 
+try {
+    throw "Something went wrong"
+} catch (e) {
+    print(e)
+}
 """
 
 tokens = tokenize(code)
