@@ -153,6 +153,23 @@ class Parser:
                 self.consume("COMMA")
         self.consume("RBRACKET")
         return ArrayLiteral(elements)
+    
+    def dict_literal(self):
+        self.consume("LBRACE")  # {
+        pairs = []
+
+        while self.peek()[0] != "RBRACE":  # }
+            key = self.expr()
+            self.consume("COLON")
+            value = self.expr()
+            pairs.append((key, value))
+            if self.peek()[0] == "COMMA":
+                self.consume("COMMA")
+            else:
+                break
+
+        self.consume("RBRACE")
+        return DictLiteral(pairs)
 
     def print_stmt(self):
         self.consume(None, "print")
@@ -164,16 +181,17 @@ class Parser:
     def printf_stmt(self):
         self.consume(None, "printf")
         self.consume("LPAREN")
-        format_expr = self.expr()  # first argument (format string)
+    
+        format_expr = self.expr()  # first argument is the format string
         args = []
-
-        while self.peek()[0] != "RPAREN":
-            self.consume("COMMA")  # consume the comma before each argument
+    
+        while self.peek()[0] == "COMMA":
+            self.consume("COMMA")
             args.append(self.expr())
-
+    
         self.consume("RPAREN")
         return PrintfStatement(format_expr, args)
-    
+
     def try_catch_stmt(self):
         self.consume(None, "try")
         try_block = self.block()
@@ -309,26 +327,39 @@ class Parser:
 
     def factor(self):
         tok = self.peek()
+
         if tok[1] == "not":
             self.consume()
             expr = self.factor()  # recursion ensures "not not true" works
             return UnaryOp("not", expr)
+
         elif tok[0] == "NUMBER":
             self.consume()
             return Literal(float(tok[1]) if "." in tok[1] else int(tok[1]))
+
         elif tok[0] == "STRING":
             self.consume()
             return Literal(tok[1].strip('"'))
+
         elif tok[0] == "LBRACKET":
             return self.array_literal()
+
+        elif tok[0] == "LBRACE":
+            return self.dict_literal()
+
         elif tok[0] == "BOOL":
             self.consume()
             return Literal(True if tok[1] == "true" else False)
+
         elif tok[0] == "NULL":
             self.consume("NULL")
             return NullLiteral()
+
         elif tok[0] == "ID":
             name = self.consume("ID")[1]
+            node = Identifier(name)
+
+        # Handle function calls
             if self.peek()[0] == "LPAREN":
                 self.consume("LPAREN")
                 args = []
@@ -337,13 +368,22 @@ class Parser:
                     if self.peek()[0] == "COMMA":
                         self.consume("COMMA")
                 self.consume("RPAREN")
-                return FunctionCall(name, args)
-            else:
-                return Identifier(name)
+                node = FunctionCall(name, args)
+
+        # Handle indexing: a[expr] or nested like a[expr][expr]
+            while self.peek()[0] == "LBRACKET":
+                self.consume("LBRACKET")
+                index_expr = self.expr()
+                self.consume("RBRACKET")
+                node = IndexAccess(node, index_expr)
+
+            return node
+
         elif tok[0] == "LPAREN":
             self.consume("LPAREN")
             expr = self.expr()
             self.consume("RPAREN")
             return expr
+
         else:
             raise SyntaxError(f"Unexpected token in factor: {tok}")

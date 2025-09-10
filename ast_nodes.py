@@ -32,6 +32,10 @@ class NullLiteral(Node):
     def __init__(self):
         self.value = None
 
+class DictLiteral(Node):
+    def __init__(self, pairs):
+        self.pairs = pairs
+
 class BinaryOp(Node):
     def __init__(self, left, op, right):
         self.left = left
@@ -68,8 +72,8 @@ class PrintStatement(Node):
 
 class PrintfStatement(Node):
     def __init__(self, format_expr, args):
-        self.format_expr = format_expr
-        self.args = args
+        self.format_expr = format_expr  # the first string expression
+        self.args = args                # list of remaining expressions
 
 class FunctionDef(Node):
     def __init__(self, name, params, body):
@@ -116,4 +120,9 @@ class ThrowStatement:
 class NativeFunction:
     def __init__(self, func):
         self.func = func
+
+class IndexAccess(Node):
+    def __init__(self, collection, index):
+        self.collection = collection  # e.g., Identifier("person")
+        self.index = index            # expression for the key/index
 

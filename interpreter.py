@@ -58,6 +58,22 @@ class Interpreter:
         elif isinstance(node, NullLiteral):
             return None
         
+        elif isinstance(node, DictLiteral):
+            result = {}
+            for key_expr, value_expr in node.pairs:
+                key = self.eval(key_expr)
+                value = self.eval(value_expr)
+                result[key] = value
+            return result
+        
+        elif isinstance(node, IndexAccess):
+            collection = self.eval(node.collection)
+            index = self.eval(node.index)
+            try:
+                return collection[index]
+            except (KeyError, IndexError, TypeError):
+                raise Exception(f"Cannot index into {collection} with {index}")
+        
         elif isinstance(node, PrintStatement):
             value = self.eval(node.expr)
             print(value)
@@ -67,7 +83,6 @@ class Interpreter:
             values = [self.eval(arg) for arg in node.args]
             fmt = fmt.encode("utf-8").decode("unicode_escape")
             print(fmt % tuple(values), end="")  # printf behaves like C's printf
-
 
         elif isinstance(node, ThrowStatement):
             value = self.eval(node.expr)

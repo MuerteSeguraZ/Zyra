@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=printf added and null datatype because i didnt know what to add tbh"
+if "%MSG%"=="" set "MSG=dicts and indexing added"
 
 git status
 
