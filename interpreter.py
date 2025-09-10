@@ -84,7 +84,13 @@ class Interpreter:
                 return not (bool(left) and bool(right))
 
             raise Exception(f"Unknown operator {node.op}")
-
+        
+        elif isinstance(node, UnaryOp):
+            val = self.eval(node.expr)
+            if node.op == "not":
+                return not val
+            else:
+                raise Exception(f"Unknown unary operator {node.op}")
         elif isinstance(node, IfStatement):
             if self.eval(node.condition):
                 for stmt in node.then_body:

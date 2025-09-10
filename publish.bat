@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=logical operators!!!!!!"
+if "%MSG%"=="" set "MSG=oops forgot not mb here ya go :)"
 
 git status
 

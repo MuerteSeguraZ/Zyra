@@ -3,20 +3,9 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-dec int x = 10
-dec int y = 0
-
-if (x > 5 and y == 0) {
-    print("Condition passed")
-}
-
-if (x < 5 or y == 0) {
-    print("Second condition passed")
-}
-
-print((x > 5) xor (y > 0))   // true
-print((x > 5) then (y > 0))  // false
-print((x > 5) nand (y > 0))  // true
+print(not true)    
+print(not false)   
+print(not (5 > 10)) 
 """
 
 tokens = tokenize(code)

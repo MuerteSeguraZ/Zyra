@@ -78,3 +78,8 @@ class SwitchStatement:
         self.expr = expr
         self.cases = cases # tuples
         self.default = default
+
+class UnaryOp:
+    def __init__(self, op, expr):
+        self.op = op
+        self.expr = expr

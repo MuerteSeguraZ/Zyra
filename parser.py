@@ -245,7 +245,11 @@ class Parser:
 
     def factor(self):
         tok = self.peek()
-        if tok[0] == "NUMBER":
+        if tok[1] == "not":
+            self.consume()
+            expr = self.factor()  # recursion ensures "not not true" works
+            return UnaryOp("not", expr)
+        elif tok[0] == "NUMBER":
             self.consume()
             return Literal(float(tok[1]) if "." in tok[1] else int(tok[1]))
         elif tok[0] == "STRING":
@@ -256,7 +260,6 @@ class Parser:
             return Literal(True if tok[1] == "true" else False)
         elif tok[0] == "ID":
             name = self.consume("ID")[1]
-            # function call
             if self.peek()[0] == "LPAREN":
                 self.consume("LPAREN")
                 args = []
