@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=switch/case support!!!!!"
+if "%MSG%"=="" set "MSG=logical operators!!!!!!"
 
 git status
 

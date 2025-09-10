@@ -60,15 +60,29 @@ class Interpreter:
             left = self.eval(node.left)
             right = self.eval(node.right)
 
-            if node.op == "+": return str(left) + str(right) if isinstance(left, str) or isinstance(right, str) else left + right
+            if node.op == "+":
+                if isinstance(left, str) or isinstance(right, str):
+                    return str(left) + str(right)
+                return left + right
             if node.op == "-": return left - right
             if node.op == "*": return left * right
-            if node.op == "/": return left / right
+            if node.op == "/": return left / right  # always float division
             if node.op == "==": return left == right
             if node.op == "<": return left < right
             if node.op == ">": return left > right
             if node.op == "<=": return left <= right
             if node.op == ">=": return left >= right
+
+            # --- Logical operators ---
+            if node.op == "and": return bool(left) and bool(right)
+            if node.op == "or": return bool(left) or bool(right)
+            if node.op == "xor": return bool(left) ^ bool(right)
+            if node.op == "then": 
+                # logical implication: A → B is equivalent to (not A) or B
+                return (not bool(left)) or bool(right)
+            if node.op == "nand":
+                return not (bool(left) and bool(right))
+
             raise Exception(f"Unknown operator {node.op}")
 
         elif isinstance(node, IfStatement):

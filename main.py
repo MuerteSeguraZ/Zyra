@@ -3,24 +3,20 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-fnc test_switch(x) {
-    switch (x) {
-        case 1:
-            print("One")
-            break
-        case 2:
-            print("Two")
-            continue
-        case 3:
-            print("Three")
-            break
-        default:
-            print("Other")
-    }
+dec int x = 10
+dec int y = 0
+
+if (x > 5 and y == 0) {
+    print("Condition passed")
 }
 
-dec int a = 2
-test_switch(a)
+if (x < 5 or y == 0) {
+    print("Second condition passed")
+}
+
+print((x > 5) xor (y > 0))   // true
+print((x > 5) then (y > 0))  // false
+print((x > 5) nand (y > 0))  // true
 """
 
 tokens = tokenize(code)

@@ -185,8 +185,51 @@ class Parser:
 
     # ----- Expressions -----
     def expr(self):
+        return self.logic_or()
+
+    def logic_or(self):
+        left = self.logic_and()
+        while self.peek()[1] in ["or", "xor"]:
+            op = self.consume()[1]
+            right = self.logic_and()
+            left = BinaryOp(left, op, right)
+        return left
+
+    def logic_and(self):
+        left = self.logic_then()
+        while self.peek()[1] == "and":
+            op = self.consume()[1]
+            right = self.logic_then()
+            left = BinaryOp(left, op, right)
+        return left
+
+    def logic_then(self):
+        left = self.logic_nand()
+        while self.peek()[1] == "then":
+            op = self.consume()[1]
+            right = self.logic_nand()
+            left = BinaryOp(left, op, right)
+        return left
+
+    def logic_nand(self):
+        left = self.comparison()
+        while self.peek()[1] == "nand":
+            op = self.consume()[1]
+            right = self.comparison()
+            left = BinaryOp(left, op, right)
+        return left
+
+    def comparison(self):
+        left = self.addition()
+        while self.peek()[1] in ["==", "<", ">", "<=", ">="]:
+            op = self.consume()[1]
+            right = self.addition()
+            left = BinaryOp(left, op, right)
+        return left
+
+    def addition(self):
         left = self.term()
-        while self.peek()[1] in ["+", "-", "==", "<", ">", "<=", ">="]:
+        while self.peek()[1] in ["+", "-"]:
             op = self.consume()[1]
             right = self.term()
             left = BinaryOp(left, op, right)
