@@ -48,6 +48,12 @@ class ForLoop(Node):
         self.update = update
         self.body = body
 
+class ForInLoop(Node):
+    def __init__(self, var_name, iterable, body):
+        self.var_name = var_name
+        self.iterable = iterable
+        self.body = body
+
 class PrintStatement(Node):
     def __init__(self, expr):
         self.expr = expr
@@ -93,4 +99,12 @@ class TryCatchStatement:
 class ThrowStatement:
     def __init__(self, expr):
         self.expr = expr
+
+class ArrayLiteral(Node):
+    def __init__(self, elements):
+        self.elements = elements
+
+class NativeFunction:
+    def __init__(self, func):
+        self.func = func
 

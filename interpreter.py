@@ -136,6 +136,24 @@ class Interpreter:
                     self.eval(node.update)
             except BreakException:
                 pass
+
+        elif isinstance(node, ForInLoop):
+            iterable = self.eval(node.iterable)
+            if not hasattr(iterable, "__iter__"):
+                raise Exception("Value in 'for ... in' is not iterable")
+            
+            for val in iterable:
+                self.env.set(node.var_name, val)
+                try:
+                    for stmt in node.body:
+                        self.eval(stmt)
+                except ContinueException:
+                    continue
+                except BreakException:
+                    break
+
+        elif isinstance(node, ArrayLiteral):
+            return [self.eval(elem) for elem in node.elements]
             
         elif isinstance(node, SwitchStatement):
             switch_val = self.eval(node.expr)

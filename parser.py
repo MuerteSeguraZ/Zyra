@@ -113,15 +113,37 @@ class Parser:
 
     def for_stmt(self):
         self.consume(None, "for")
-        self.consume("LPAREN")
-        init = self.assignment_or_expr()
-        self.consume("SEMICOL")
-        condition = self.expr()
-        self.consume("SEMICOL")
-        update = self.assignment_or_expr()
-        self.consume("RPAREN")
-        body = self.block()
-        return ForLoop(init, condition, update, body)
+    
+        if self.peek()[0] == "LPAREN":
+            self.consume("LPAREN")
+            init = self.assignment_or_expr()
+            self.consume("SEMICOL")
+            condition = self.expr()
+            self.consume("SEMICOL")
+            update = self.assignment_or_expr()
+            self.consume("RPAREN")
+            body = self.block()
+            return ForLoop(init, condition, update, body)
+
+        elif self.peek()[0] == "ID" and self.tokens[self.pos+1][1] == "in":
+            var_name = self.consume("ID")[1]
+            self.consume(None, "in")
+            iterable = self.expr()
+            body = self.block()
+            return ForInLoop(var_name, iterable, body)
+        else:
+            raise SyntaxError(f"Invalid 'for' statement at token {self.peek()}")
+
+        
+    def array_literal(self):
+        self.consume("LBRACKET")
+        elements = []
+        while self.peek()[0] != "RBRACKET":
+            elements.append(self.expr())
+            if self.peek()[0] == "COMMA":
+                self.consume("COMMA")
+        self.consume("RBRACKET")
+        return ArrayLiteral(elements)
 
     def print_stmt(self):
         self.consume(None, "print")
@@ -275,6 +297,8 @@ class Parser:
         elif tok[0] == "STRING":
             self.consume()
             return Literal(tok[1].strip('"'))
+        elif tok[0] == "LBRACKET":
+            return self.array_literal()
         elif tok[0] == "BOOL":
             self.consume()
             return Literal(True if tok[1] == "true" else False)

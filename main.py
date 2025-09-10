@@ -3,10 +3,8 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-try {
-    throw "Something went wrong"
-} catch (e) {
-    print(e)
+for a in [1, 2, 3] {
+    print(a)
 }
 """
 
