@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG='for in' stuff"
+if "%MSG%"=="" set "MSG=printf added and null datatype because i didnt know what to add tbh"
 
 git status
 

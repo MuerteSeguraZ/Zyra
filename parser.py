@@ -35,6 +35,8 @@ class Parser:
             return self.for_stmt()
         elif tok[1] == "print":
             return self.print_stmt()
+        elif tok[1] == "printf":
+            return self.printf_stmt()
         elif tok[1] == "fnc":
             return self.function_def()
         elif tok[1] == "return":
@@ -68,11 +70,18 @@ class Parser:
 
     def var_decl(self):
         self.consume(None, "dec")
-        var_type = self.consume("ID")[1]
-        name = self.consume("ID")[1]
-        self.consume("OP", "=")
-        value = self.expr()
-        return VarDecl(var_type, name, value)
+        first_id = self.consume("ID")[1]
+
+        if self.peek()[0] == "ID":
+            var_type = first_id
+            name = self.consume("ID")[1]
+        else:
+            var_type = None
+            name = first_id
+
+            self.consume("OP", "=")
+            value = self.expr()
+            return VarDecl(var_type, name, value)
 
     def assignment_or_expr(self):
         tok = self.peek()
@@ -151,6 +160,19 @@ class Parser:
         expr = self.expr()
         self.consume("RPAREN")
         return PrintStatement(expr)
+    
+    def printf_stmt(self):
+        self.consume(None, "printf")
+        self.consume("LPAREN")
+        format_expr = self.expr()  # first argument (format string)
+        args = []
+
+        while self.peek()[0] != "RPAREN":
+            self.consume("COMMA")  # consume the comma before each argument
+            args.append(self.expr())
+
+        self.consume("RPAREN")
+        return PrintfStatement(format_expr, args)
     
     def try_catch_stmt(self):
         self.consume(None, "try")
@@ -302,6 +324,9 @@ class Parser:
         elif tok[0] == "BOOL":
             self.consume()
             return Literal(True if tok[1] == "true" else False)
+        elif tok[0] == "NULL":
+            self.consume("NULL")
+            return NullLiteral()
         elif tok[0] == "ID":
             name = self.consume("ID")[1]
             if self.peek()[0] == "LPAREN":

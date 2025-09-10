@@ -24,6 +24,14 @@ class Literal(Node):
     def __init__(self, value):
         self.value = value
 
+class ArrayLiteral(Node):
+    def __init__(self, elements):
+        self.elements = elements
+
+class NullLiteral(Node):
+    def __init__(self):
+        self.value = None
+
 class BinaryOp(Node):
     def __init__(self, left, op, right):
         self.left = left
@@ -57,6 +65,11 @@ class ForInLoop(Node):
 class PrintStatement(Node):
     def __init__(self, expr):
         self.expr = expr
+
+class PrintfStatement(Node):
+    def __init__(self, format_expr, args):
+        self.format_expr = format_expr
+        self.args = args
 
 class FunctionDef(Node):
     def __init__(self, name, params, body):
@@ -99,10 +112,6 @@ class TryCatchStatement:
 class ThrowStatement:
     def __init__(self, expr):
         self.expr = expr
-
-class ArrayLiteral(Node):
-    def __init__(self, elements):
-        self.elements = elements
 
 class NativeFunction:
     def __init__(self, func):

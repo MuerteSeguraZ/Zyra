@@ -3,9 +3,9 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-for a in [1, 2, 3] {
-    print(a)
-}
+dec a = null
+print(a)          # prints: None
+printf("Value: %s\n", a)  # prints: Value: None
 """
 
 tokens = tokenize(code)

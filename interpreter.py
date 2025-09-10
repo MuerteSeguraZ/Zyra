@@ -51,10 +51,23 @@ class Interpreter:
 
         elif isinstance(node, Literal):
             return node.value
+        
+        elif isinstance(node, ArrayLiteral):
+            return [self.eval(elem) for elem in node.elements]
 
+        elif isinstance(node, NullLiteral):
+            return None
+        
         elif isinstance(node, PrintStatement):
             value = self.eval(node.expr)
             print(value)
+
+        elif isinstance(node, PrintfStatement):
+            fmt = self.eval(node.format_expr)
+            values = [self.eval(arg) for arg in node.args]
+            fmt = fmt.encode("utf-8").decode("unicode_escape")
+            print(fmt % tuple(values), end="")  # printf behaves like C's printf
+
 
         elif isinstance(node, ThrowStatement):
             value = self.eval(node.expr)
@@ -151,9 +164,6 @@ class Interpreter:
                     continue
                 except BreakException:
                     break
-
-        elif isinstance(node, ArrayLiteral):
-            return [self.eval(elem) for elem in node.elements]
             
         elif isinstance(node, SwitchStatement):
             switch_val = self.eval(node.expr)

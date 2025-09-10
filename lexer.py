@@ -2,8 +2,9 @@ import re
 
 TOKEN_SPEC = [
     ("NUMBER", r"\d+(\.\d+)?"),
-    ("STRING", r"\".*?\""),
+    ("STRING", r'"(\\.|[^"\\])*"'),
     ("BOOL", r"(true|false)"),
+    ("NULL", r"null"),
     ("ID", r"[A-Za-z_][A-Za-z0-9_]*"),
 
     # Multi-character operators must come before single-char
@@ -26,6 +27,7 @@ TOKEN_SPEC = [
 def tokenize(code):
     # Remove comments first
     code = re.sub(r"//.*", "", code)         # single-line comments
+    code = re.sub(r"#.*", "", code)          # single-line comments (# style)
     code = re.sub(r"/\*.*?\*/", "", code, flags=re.DOTALL)  # multi-line comments
 
     regex = "|".join(f"(?P<{name}>{pattern})" for name, pattern in TOKEN_SPEC)
