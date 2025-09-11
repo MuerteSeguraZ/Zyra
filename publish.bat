@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=bigint added"
+if "%MSG%"=="" set "MSG=decimal added (check main.py for example)"
 
 git status
 

@@ -90,7 +90,9 @@ class Interpreter:
         elif isinstance(node, BigIntLiteral):
             return node.value  # just return the integer value
 
-
+        elif isinstance(node, DecimalLiteral):
+            return node.value  # return Decimal instance
+        
         elif isinstance(node, PrintfStatement):
             fmt = self.eval(node.format_expr)
             values = [self.eval(arg) for arg in node.args]

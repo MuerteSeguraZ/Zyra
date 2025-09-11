@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 class Node:
     pass
 
@@ -46,6 +48,10 @@ class CharLiteral:
 class BigIntLiteral:
     def __init__(self, value):
         self.value = int(value[:-1])  # strip the 'n' here
+
+class DecimalLiteral:
+    def __init__(self, value):
+        self.value = Decimal(value)
 
 class BinaryOp(Node):
     def __init__(self, left, op, right):

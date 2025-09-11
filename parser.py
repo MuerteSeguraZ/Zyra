@@ -349,6 +349,9 @@ class Parser:
             self.consume("BIGINT")
             return BigIntLiteral(tok[1])  # include the trailing 'n'
 
+        elif tok[0] == "DECIMAL":
+            self.consume()
+            return DecimalLiteral(tok[1][:-1])  # strip trailing 'd'
 
         elif tok[0] == "LBRACKET":
             return self.array_literal()

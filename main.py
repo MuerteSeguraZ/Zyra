@@ -3,8 +3,9 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-dec big = 12345678901234567890n
-print(big)
+dec pi = 3.14159d
+print(pi)
+printf("High precision: %f\n", pi)
 """
 
 tokens = tokenize(code)
