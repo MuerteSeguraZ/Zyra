@@ -6,6 +6,7 @@ TOKEN_SPEC = [
     ("BOOL", r"(true|false)"),
     ("NULL", r"null"),
     ("ID", r"[A-Za-z_][A-Za-z0-9_]*"),
+    ("CHAR", r"'(\\.|[^'\\])'"),   # <--- NEW for char literals
 
     # Multi-character operators must come before single-char
     ("OP", r"(==|!=|<=|>=|\+|\-|\*|/|=|<|>)"),
@@ -39,5 +40,7 @@ def tokenize(code):
             continue
         elif kind == "MISMATCH":
             raise SyntaxError(f"Unexpected token: {value}")
-        tokens.append((kind, value))
-    return tokens
+        else:
+            tokens.append((kind, value))  
+
+    return tokens   

@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=dicts and indexing added"
+if "%MSG%"=="" set "MSG=char literals added"
 
 git status
 

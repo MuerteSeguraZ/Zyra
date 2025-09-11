@@ -36,6 +36,13 @@ class DictLiteral(Node):
     def __init__(self, pairs):
         self.pairs = pairs
 
+class CharLiteral:
+    def __init__(self, value):
+        self.value = value  # string, either 1 char or escape like \n
+
+    def __repr__(self):
+        return f"CharLiteral({self.value!r})"
+
 class BinaryOp(Node):
     def __init__(self, left, op, right):
         self.left = left

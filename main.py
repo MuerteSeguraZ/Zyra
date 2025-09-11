@@ -3,9 +3,11 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-dec person = { "name": "Alice", "age": 30 }
-print(person)
-printf("Name: %s, Age: %d\n", person["name"], person["age"])
+dec letter = 'a'
+print(letter)
+
+dec newline = '\\n'
+printf("This is a line%cThis is another\\n", newline)
 """
 
 tokens = tokenize(code)

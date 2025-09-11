@@ -340,6 +340,10 @@ class Parser:
         elif tok[0] == "STRING":
             self.consume()
             return Literal(tok[1].strip('"'))
+        
+        elif tok[0] == "CHAR":
+            self.consume()
+            return CharLiteral(tok[1][1:-1])  # strip surrounding quotes
 
         elif tok[0] == "LBRACKET":
             return self.array_literal()

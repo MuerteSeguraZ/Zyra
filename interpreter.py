@@ -65,6 +65,8 @@ class Interpreter:
                 value = self.eval(value_expr)
                 result[key] = value
             return result
+
+
         
         elif isinstance(node, IndexAccess):
             collection = self.eval(node.collection)
@@ -77,6 +79,13 @@ class Interpreter:
         elif isinstance(node, PrintStatement):
             value = self.eval(node.expr)
             print(value)
+
+        elif isinstance(node, CharLiteral):
+            val = node.value
+            if val.startswith("\\"):  # escape sequences
+                escapes = {"\\n": "\n", "\\t": "\t", "\\'": "'", "\\\\": "\\"}
+                return escapes.get(val, val[1:])
+            return val
 
         elif isinstance(node, PrintfStatement):
             fmt = self.eval(node.format_expr)
