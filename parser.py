@@ -421,7 +421,7 @@ class Parser:
 
     def comparison(self):
         left = self.addition()
-        while self.peek()[1] in ["==", "<", ">", "<=", ">="]:
+        while self.peek()[1] in ["==", "<", ">", "<=", ">=", "in"]:
             op = self.consume()[1]
             right = self.addition()
             left = BinaryOp(left, op, right)

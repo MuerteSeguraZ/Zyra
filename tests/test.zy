@@ -1,2 +1,8 @@
-dec s = {1, 2, 2, 3}
-print(s)  # -> {1, 2, 3} (duplicates removed)
+dec a = {1, 2, 3}
+dec b = {3, 4, 5}
+
+print(a + b)      # {1, 2, 3, 4, 5}
+print(a * b)      # {3}
+print(a - b)      # {1, 2}
+print(2 in a)     # true
+print(5 in a)     # false

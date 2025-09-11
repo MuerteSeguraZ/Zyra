@@ -136,6 +136,20 @@ class Interpreter:
         elif isinstance(node, BinaryOp):
             left = self.eval(node.left)
             right = self.eval(node.right)
+            op = node.op
+
+            # set operations
+            if isinstance(left, set) or isinstance(right, set):
+                if op == '+':
+                    return set(left).union(right)
+                elif op == '*':
+                    return set(left).intersection(right)
+                elif op == '-':
+                    return set(left).difference(right)
+                elif op == 'in':
+                    return left in right
+                else:
+                    raise RuntimeError(f"Unsupported set operator '{op}'")
 
             if node.op == "+":
                 if isinstance(left, str) or isinstance(right, str):
