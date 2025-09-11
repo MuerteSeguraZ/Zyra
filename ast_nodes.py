@@ -68,11 +68,11 @@ class TupleLiteral:
 
     def __repr__(self):
         return f"TupleLiteral({self.elements})"
-    
+
 class SetLiteral:
     def __init__(self, elements):
         self.elements = elements
-    
+
     def __repr__(self):
         return f"SetLiteral({self.elements})"
 

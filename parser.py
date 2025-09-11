@@ -208,12 +208,16 @@ class Parser:
     def set_literal(self):
         self.consume("LBRACE")
         elements = []
+
         while self.peek()[0] != "RBRACE":
             elements.append(self.expr())
             if self.peek()[0] == "COMMA":
                 self.consume("COMMA")
-            self.consume("RBRACE")
-            return SetLiteral(elements)
+            else:
+                break
+
+        self.consume("RBRACE")
+        return SetLiteral(elements)
 
     def print_stmt(self):
         self.consume(None, "print")
@@ -345,7 +349,11 @@ class Parser:
             node = self.array_literal()
         # --- Dictionary literal ---
         elif tok[0] == "LBRACE":
-            node = self.dict_literal()
+            next_tok = self.tokens[self.pos + 1] if self.pos + 1 < len(self.tokens) else (None, None)
+            if next_tok[0] == "COLON":
+                node = self.dict_literal()
+            else:
+                node = self.set_literal()
         # --- Boolean / null / string / char / bigint / decimal literals ---
         elif tok[0] == "BOOL":
             self.consume()

@@ -110,7 +110,8 @@ class Interpreter:
             return tuple(self.eval(e) for e in node.elements)
         
         elif isinstance(node, SetLiteral):
-            return set(self.eval(e) for e in node.elements)
+            elements = [self.eval(e) for e in node.elements]
+            return set(elements)
         
         elif isinstance(node, PrintfStatement):
             fmt = self.eval(node.format_expr)
