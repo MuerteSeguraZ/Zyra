@@ -84,21 +84,30 @@ class Parser:
             return VarDecl(var_type, name, value)
 
     def assignment_or_expr(self):
-        tok = self.peek()
-        if tok[0] == "ID":
-            name = self.consume("ID")[1]
-            if self.peek()[1] == "=":
-                self.consume("OP", "=")
-                value = self.expr()
-                return Assignment(name, value)
-            elif self.peek()[0] == "LPAREN":
-                # function call
-                self.pos -= 1  # step back so term() can handle it
-                return self.term()
+            tok = self.peek()
+
+            if tok[0] == "ID":
+                name = self.consume("ID")[1]
+
+                if self.peek()[1] == "=":
+                    self.consume("OP", "=")
+                    value = self.expr()
+                    return Assignment(name, value)
+
+                elif self.peek()[1] in ["+=", "-=", "*=", "/="]:
+                    op = self.consume()[1]
+                    value = self.expr()
+                    return AugmentedAssignment(name, op, value)
+
+                elif self.peek()[0] == "LPAREN":
+                    self.pos -= 1
+                    return self.term()
+
+                else:
+                    return Identifier(name)
             else:
-                return Identifier(name)
-        else:
-            return self.expr()
+                expr_node = self.expr()
+                return expr_node
 
     def if_stmt(self):
         self.consume(None, "if")
@@ -310,23 +319,36 @@ class Parser:
         return left
 
     def addition(self):
-        left = self.term()
-        while self.peek()[1] in ["+", "-"]:
-            op = self.consume()[1]
-            right = self.term()
-            left = BinaryOp(left, op, right)
-        return left
+            left = self.term()
+            while True:
+                tok = self.peek()
+                if tok and tok[0] == "OP" and tok[1] in ("+", "-"):
+                    op = self.consume()[1]
+                    right = self.term()
+                    left = BinaryOp(left, op, right)
+                else:
+                    break
+            return left
 
     def term(self):
-        left = self.factor()
-        while self.peek()[1] in ["*", "/"]:
-            op = self.consume()[1]
-            right = self.factor()
-            left = BinaryOp(left, op, right)
-        return left
+            left = self.factor()
+            while True:
+                tok = self.peek()
+                if tok and tok[0] == "OP" and tok[1] in ("*", "/"):
+                    op = self.consume()[1]
+                    right = self.factor()
+                    left = BinaryOp(left, op, right)
+                else:
+                    break
+            return left
 
     def factor(self):
         tok = self.peek()
+
+        if tok[0] == "OP" and tok[1] in ("+", "-"):
+            op = self.consume()[1]
+            expr = self.factor()
+            return UnaryOp(op, expr)
 
         if tok[1] == "not":
             self.consume()

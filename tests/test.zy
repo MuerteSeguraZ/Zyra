@@ -1,3 +1,4 @@
-dec pi = 3.14159d
-print(pi)
-printf("High precision: %f\n", pi)
+dec x = 27
+x = x / 2 * 3 + 1
+x += 5
+print(x)  

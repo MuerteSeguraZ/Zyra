@@ -11,7 +11,7 @@ TOKEN_SPEC = [
     ("CHAR", r"'(\\.|[^'\\])'"),   # <--- NEW for char literals
 
     # Multi-character operators must come before single-char
-    ("OP", r"(==|!=|<=|>=|\+|\-|\*|/|=|<|>)"),
+    ("OP", r"(\+=|-=|\*=|/=|==|!=|<=|>=|\+|\-|\*|/|=|<|>)"),
 
     ("LPAREN", r"\("),
     ("RPAREN", r"\)"),

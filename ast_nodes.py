@@ -18,6 +18,15 @@ class Assignment(Node):
         self.name = name
         self.value = value
 
+class AugmentedAssignment:
+    def __init__(self, name, operator, value):
+        self.name = name
+        self.operator = operator
+        self.value = value
+
+    def __repr__(self):
+        return f"AugmentedAssignment({self.name}, {self.operator}, {self.value})"
+
 class Identifier(Node):
     def __init__(self, name):
         self.name = name

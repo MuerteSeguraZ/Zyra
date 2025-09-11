@@ -46,6 +46,19 @@ class Interpreter:
         elif isinstance(node, Assignment):
             self.env.set(node.name, self.eval(node.value))
 
+        elif isinstance(node, AugmentedAssignment):
+            current_val = self.env.get(node.name)  # ✅ call get()
+            if node.operator == "+=":
+                self.env.set(node.name, current_val + self.eval(node.value))
+            elif node.operator == "-=":
+                self.env.set(node.name, current_val - self.eval(node.value))
+            elif node.operator == "*=":
+                self.env.set(node.name, current_val * self.eval(node.value))
+            elif node.operator == "/=":
+                self.env.set(node.name, current_val / self.eval(node.value))
+            else:
+                raise RuntimeError(f"Unknown augmented operator {node.operator}")
+
         elif isinstance(node, Identifier):
             return self.env.get(node.name)
 
