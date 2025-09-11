@@ -1,4 +1,4 @@
-dec x = 27
-x = x / 2 * 3 + 1
-x += 5
-print(x)  
+dec x = 5
+print(~(-x))
+print(not false)
+print(not ~x)

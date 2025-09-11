@@ -159,8 +159,15 @@ class Interpreter:
             val = self.eval(node.expr)
             if node.op == "not":
                 return not val
+            elif node.op == "+":
+                return +val
+            elif node.op == "-":
+                return -val
+            elif node.op == "~":
+                return ~int(val)
             else:
-                raise Exception(f"Unknown unary operator {node.op}")
+                raise RuntimeError(f"Unknown unary operator {node.op}")
+            
         elif isinstance(node, IfStatement):
             if self.eval(node.condition):
                 for stmt in node.then_body:

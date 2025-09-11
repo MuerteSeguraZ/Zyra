@@ -345,7 +345,7 @@ class Parser:
     def factor(self):
         tok = self.peek()
 
-        if tok[0] == "OP" and tok[1] in ("+", "-"):
+        if tok[0] == "OP" and tok[1] in ("+", "-", "~"):
             op = self.consume()[1]
             expr = self.factor()
             return UnaryOp(op, expr)

@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=augmented assignments"
+if "%MSG%"=="" set "MSG=more unary stuff and bitwise NOT"
 
 git status
 
