@@ -1,5 +1,7 @@
 @echo off
 
+REM a
+
 git add --all
 
 set "MSG=%~1"
