@@ -106,6 +106,12 @@ class Interpreter:
         elif isinstance(node, DecimalLiteral):
             return node.value  # return Decimal instance
         
+        elif isinstance(node, TupleLiteral):
+            return tuple(self.eval(e) for e in node.elements)
+        
+        elif isinstance(node, SetLiteral):
+            return set(self.eval(e) for e in node.elements)
+        
         elif isinstance(node, PrintfStatement):
             fmt = self.eval(node.format_expr)
             values = [self.eval(arg) for arg in node.args]

@@ -62,6 +62,20 @@ class DecimalLiteral:
     def __init__(self, value):
         self.value = Decimal(value)
 
+class TupleLiteral:
+    def __init__(self, elements):
+        self.elements = elements
+
+    def __repr__(self):
+        return f"TupleLiteral({self.elements})"
+    
+class SetLiteral:
+    def __init__(self, elements):
+        self.elements = elements
+    
+    def __repr__(self):
+        return f"SetLiteral({self.elements})"
+
 class BinaryOp(Node):
     def __init__(self, left, op, right):
         self.left = left

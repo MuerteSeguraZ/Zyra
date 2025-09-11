@@ -179,6 +179,41 @@ class Parser:
 
         self.consume("RBRACE")
         return DictLiteral(pairs)
+    
+    def tuple_literal(self):
+            self.consume("LPAREN")
+            elements = []
+
+            if self.peek()[0] == "RPAREN":  # empty tuple
+                self.consume("RPAREN")
+                return TupleLiteral(elements)
+
+            while True:
+                elements.append(self.expr())
+                tok = self.peek()
+                if tok[0] == "COMMA":
+                    self.consume("COMMA")
+            # continue parsing next element (handle trailing comma automatically)
+                    if self.peek()[0] == "RPAREN":  # trailing comma
+                        self.consume("RPAREN")
+                        break
+                elif tok[0] == "RPAREN":
+                    self.consume("RPAREN")
+                    break
+                else:
+                    raise SyntaxError(f"Expected ',' or ')', got {tok}")
+
+            return TupleLiteral(elements)
+
+    def set_literal(self):
+        self.consume("LBRACE")
+        elements = []
+        while self.peek()[0] != "RBRACE":
+            elements.append(self.expr())
+            if self.peek()[0] == "COMMA":
+                self.consume("COMMA")
+            self.consume("RBRACE")
+            return SetLiteral(elements)
 
     def print_stmt(self):
         self.consume(None, "print")
@@ -276,7 +311,73 @@ class Parser:
 
     # ----- Expressions -----
     def expr(self):
+    # Start parsing with full precedence (addition/subtraction, multiplication/division, etc.)
         return self.logic_or()
+
+    def primary(self):
+        tok = self.peek()
+
+        # --- Tuple / grouped expressions ---
+        if tok[0] == "LPAREN":
+            node = self.tuple_literal()  # handles (), (1,), (1,2,3), nested
+        # --- Number literal ---
+        elif tok[0] == "NUMBER":
+            self.consume()
+            node = Literal(float(tok[1]) if "." in tok[1] else int(tok[1]))
+        # --- Identifier ---
+        elif tok[0] == "ID":
+            name = self.consume("ID")[1]
+            node = Identifier(name)
+
+            # Function call
+            if self.peek()[0] == "LPAREN":
+                self.consume("LPAREN")
+                args = []
+                while self.peek()[0] != "RPAREN":
+                    args.append(self.expr())
+                    if self.peek()[0] == "COMMA":
+                        self.consume("COMMA")
+                self.consume("RPAREN")
+                node = FunctionCall(name, args)
+
+        # --- Array literal ---
+        elif tok[0] == "LBRACKET":
+            node = self.array_literal()
+        # --- Dictionary literal ---
+        elif tok[0] == "LBRACE":
+            node = self.dict_literal()
+        # --- Boolean / null / string / char / bigint / decimal literals ---
+        elif tok[0] == "BOOL":
+            self.consume()
+            node = Literal(True if tok[1] == "true" else False)
+        elif tok[0] == "NULL":
+            self.consume("NULL")
+            node = NullLiteral()
+        elif tok[0] == "STRING":
+            self.consume()
+            node = Literal(tok[1].strip('"'))
+        elif tok[0] == "CHAR":
+            self.consume()
+            node = CharLiteral(tok[1][1:-1])
+        elif tok[0] == "BIGINT":
+            self.consume("BIGINT")
+            node = BigIntLiteral(tok[1])
+        elif tok[0] == "DECIMAL":
+            self.consume()
+            node = DecimalLiteral(tok[1][:-1])
+        # --- Unary operators handled in factor() ---
+        else:
+        # fallback to logic_or if nothing matched
+         node = self.logic_or()
+
+        # --- Handle indexing / subscript: a[expr][expr]...
+        while self.peek()[0] == "LBRACKET":
+            self.consume("LBRACKET")
+            index_expr = self.expr()
+            self.consume("RBRACKET")
+            node = IndexAccess(node, index_expr)
+
+        return node
 
     def logic_or(self):
         left = self.logic_and()
@@ -345,79 +446,17 @@ class Parser:
     def factor(self):
         tok = self.peek()
 
+        # Unary operators
         if tok[0] == "OP" and tok[1] in ("+", "-", "~"):
             op = self.consume()[1]
-            expr = self.factor()
+            expr = self.factor()  # recursive for multiple unary ops
             return UnaryOp(op, expr)
 
         if tok[1] == "not":
             self.consume()
-            expr = self.factor()  # recursion ensures "not not true" works
+            expr = self.factor()
             return UnaryOp("not", expr)
 
-        elif tok[0] == "NUMBER":
-            self.consume()
-            return Literal(float(tok[1]) if "." in tok[1] else int(tok[1]))
+    # Delegate everything else to primary() which returns a node
+        return self.primary()
 
-        elif tok[0] == "STRING":
-            self.consume()
-            return Literal(tok[1].strip('"'))
-        
-        elif tok[0] == "CHAR":
-            self.consume()
-            return CharLiteral(tok[1][1:-1])  # strip surrounding quotes
-        
-        elif tok[0] == "BIGINT":
-            self.consume("BIGINT")
-            return BigIntLiteral(tok[1])  # include the trailing 'n'
-
-        elif tok[0] == "DECIMAL":
-            self.consume()
-            return DecimalLiteral(tok[1][:-1])  # strip trailing 'd'
-
-        elif tok[0] == "LBRACKET":
-            return self.array_literal()
-
-        elif tok[0] == "LBRACE":
-            return self.dict_literal()
-
-        elif tok[0] == "BOOL":
-            self.consume()
-            return Literal(True if tok[1] == "true" else False)
-
-        elif tok[0] == "NULL":
-            self.consume("NULL")
-            return NullLiteral()
-
-        elif tok[0] == "ID":
-            name = self.consume("ID")[1]
-            node = Identifier(name)
-
-        # Handle function calls
-            if self.peek()[0] == "LPAREN":
-                self.consume("LPAREN")
-                args = []
-                while self.peek()[0] != "RPAREN":
-                    args.append(self.expr())
-                    if self.peek()[0] == "COMMA":
-                        self.consume("COMMA")
-                self.consume("RPAREN")
-                node = FunctionCall(name, args)
-
-        # Handle indexing: a[expr] or nested like a[expr][expr]
-            while self.peek()[0] == "LBRACKET":
-                self.consume("LBRACKET")
-                index_expr = self.expr()
-                self.consume("RBRACKET")
-                node = IndexAccess(node, index_expr)
-
-            return node
-
-        elif tok[0] == "LPAREN":
-            self.consume("LPAREN")
-            expr = self.expr()
-            self.consume("RPAREN")
-            return expr
-
-        else:
-            raise SyntaxError(f"Unexpected token in factor: {tok}")
