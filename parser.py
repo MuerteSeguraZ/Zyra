@@ -344,6 +344,11 @@ class Parser:
         elif tok[0] == "CHAR":
             self.consume()
             return CharLiteral(tok[1][1:-1])  # strip surrounding quotes
+        
+        elif tok[0] == "BIGINT":
+            self.consume("BIGINT")
+            return BigIntLiteral(tok[1])  # include the trailing 'n'
+
 
         elif tok[0] == "LBRACKET":
             return self.array_literal()

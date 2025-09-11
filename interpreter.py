@@ -86,6 +86,10 @@ class Interpreter:
                 escapes = {"\\n": "\n", "\\t": "\t", "\\'": "'", "\\\\": "\\"}
                 return escapes.get(val, val[1:])
             return val
+        
+        elif isinstance(node, BigIntLiteral):
+            return node.value  # just return the integer value
+
 
         elif isinstance(node, PrintfStatement):
             fmt = self.eval(node.format_expr)

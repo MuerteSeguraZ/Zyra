@@ -42,6 +42,10 @@ class CharLiteral:
 
     def __repr__(self):
         return f"CharLiteral({self.value!r})"
+    
+class BigIntLiteral:
+    def __init__(self, value):
+        self.value = int(value[:-1])  # strip the 'n' here
 
 class BinaryOp(Node):
     def __init__(self, left, op, right):

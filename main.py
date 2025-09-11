@@ -3,11 +3,8 @@ from parser import Parser
 from interpreter import Interpreter
 
 code = """
-dec letter = 'a'
-print(letter)
-
-dec newline = '\\n'
-printf("This is a line%cThis is another\\n", newline)
+dec big = 12345678901234567890n
+print(big)
 """
 
 tokens = tokenize(code)

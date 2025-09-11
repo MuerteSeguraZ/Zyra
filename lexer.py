@@ -1,6 +1,7 @@
 import re
 
 TOKEN_SPEC = [
+    ("BIGINT", r"\d+n"),             # 123n
     ("NUMBER", r"\d+(\.\d+)?"),
     ("STRING", r'"(\\.|[^"\\])*"'),
     ("BOOL", r"(true|false)"),
