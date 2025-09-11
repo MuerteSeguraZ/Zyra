@@ -1,0 +1,3 @@
+dec pi = 3.14159d
+print(pi)
+printf("High precision: %f\n", pi)

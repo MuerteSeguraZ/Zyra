@@ -5,7 +5,7 @@ REM a
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=decimal added (check main.py for example)"
+if "%MSG%"=="" set "MSG=runner (zyra <filename.zy>) so i dont have to do a main.py ever again"
 
 git status
 
