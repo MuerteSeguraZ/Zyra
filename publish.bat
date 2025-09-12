@@ -1,5 +1,7 @@
 @echo off
 
+REM a
+
 git add --all
 
 set "MSG=%~1"
@@ -9,6 +11,6 @@ git status
 
 git commit -m "%MSG%"
 
-git push origin main
+git push origin main --force
 
 pause
