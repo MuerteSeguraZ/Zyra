@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=added != because my other cat didnt like there was no not equal"
+if "%MSG%"=="" set "MSG=added spaceship operator <=> because my third cat wanted to sort things out faster (he's lazy)"
 
 git status
 

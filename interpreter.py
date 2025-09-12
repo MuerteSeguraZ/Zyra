@@ -175,6 +175,14 @@ class Interpreter:
                     return left in right
                 else:
                     raise RuntimeError(f"Unsupported set operator '{op}'")
+                
+            elif node.op == "<=>":
+                if left < right:
+                    return -1
+                elif left == right:
+                    return 0
+                else:
+                    return 1
 
             if node.op == "+":
                 if isinstance(left, str) or isinstance(right, str):
@@ -189,6 +197,10 @@ class Interpreter:
             if node.op == ">": return left > right
             if node.op == "<=": return left <= right
             if node.op == ">=": return left >= right
+            if node.op == "<=>":
+                if left < right: return -1
+                elif left == right: return 0
+                else: return 1
 
             # --- Logical operators ---
             if node.op == "and": return bool(left) and bool(right)
