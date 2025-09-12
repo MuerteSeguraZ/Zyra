@@ -25,6 +25,7 @@
   * `uint16` - 16-bit unsigned integer (0 to 65,535)
   * `uint32` - 32-bit unsigned integer (0 to 4,294,967,295)
   * `uint64` - 64-bit unsigned integer (0 to 18,446,774,073,709,551,615)
+  * `usize` - pointer-sized signed integer (wraps using two's complement, 64-bit by default)
 
 * Values automatically wrap around when exceeding their maximum:
 

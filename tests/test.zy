@@ -1,2 +1,8 @@
-print(usize(18446744073709551616))  # wraps to 0
-print(isize(9223372036854775808))   # wraps to -9223372036854775808
+struct Header {
+    dec magic: uint32 big
+    dec version: uint16 little
+}
+
+dec h = Header(magic: 0xCAFEBABE, version: 1)
+print(h.magic)
+print(h.version)

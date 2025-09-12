@@ -488,4 +488,3 @@ class Parser:
 
     # Delegate everything else to primary() which returns a node
         return self.primary()
-
