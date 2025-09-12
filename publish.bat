@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=Readme upd p.2"
+if "%MSG%"=="" set "MSG=isize/usize because my dog likes messing with memory"
 
 git status
 

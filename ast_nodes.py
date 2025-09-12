@@ -61,6 +61,14 @@ class BigIntLiteral:
     def __init__(self, value):
         self.value = int(value[:-1])  # strip the 'n' here
 
+class SizeIntLiteral(Node):
+    def __init__(self, expr, signed=True):
+        self.expr = expr
+        self.signed = signed
+
+    def __repr__(self):
+        return f"{'isize' if self.signed else 'usize'}({self.expr})"
+
 class DecimalLiteral:
     def __init__(self, value):
         self.value = Decimal(value)

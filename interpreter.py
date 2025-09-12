@@ -68,6 +68,19 @@ class Interpreter:
             raw_val = self.eval(node.value)
             mask = (1 << node.bit_size) - 1
             return raw_val & mask
+        
+        elif isinstance(node, SizeIntLiteral):
+            val = self.eval(node.expr)
+
+            bits = 64  # assume 64-bit platform
+            if node.signed:
+                # isize: signed wrap
+                wrapped = ((val + (1 << (bits-1))) % (1 << bits)) - (1 << (bits-1))
+            else:
+                # usize: unsigned wrap
+                wrapped = val % (1 << bits)
+
+            return wrapped
 
         elif isinstance(node, Assignment):
             self.env.set(node.name, self.eval(node.value))

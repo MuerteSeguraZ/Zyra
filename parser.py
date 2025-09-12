@@ -335,22 +335,6 @@ class Parser:
         elif tok[0] == "NUMBER":
             self.consume()
             node = Literal(float(tok[1]) if "." in tok[1] else int(tok[1]))
-        # --- Identifier ---
-        elif tok[0] == "ID":
-            name = self.consume("ID")[1]
-            node = Identifier(name)
-
-            # Function call
-            if self.peek()[0] == "LPAREN":
-                self.consume("LPAREN")
-                args = []
-                while self.peek()[0] != "RPAREN":
-                    args.append(self.expr())
-                    if self.peek()[0] == "COMMA":
-                        self.consume("COMMA")
-                self.consume("RPAREN")
-                node = FunctionCall(name, args)
-
         # --- Array literal ---
         elif tok[0] == "LBRACKET":
             node = self.array_literal()
@@ -386,9 +370,31 @@ class Parser:
             self.consume("LPAREN")
             inner_expr = self.expr()
             self.consume("RPAREN")
-
             bit_size = int(typename[4:])
             node = UIntLiteral(inner_expr, bit_size)
+
+        elif tok[0] == "ID" and tok[1] in ("usize", "isize"):
+            typename = self.consume("ID")[1]
+            self.consume("LPAREN")
+            inner_expr = self.expr()
+            self.consume("RPAREN")
+            node = SizeIntLiteral(inner_expr, signed=(typename == "isize"))
+
+        # -- Identifiers here --
+        elif tok[0] == "ID":
+            name = self.consume("ID")[1]
+            node = Identifier(name)
+
+            # Function call
+            if self.peek()[0] == "LPAREN":
+                self.consume("LPAREN")
+                args = []
+                while self.peek()[0] != "RPAREN":
+                    args.append(self.expr())
+                    if self.peek()[0] == "COMMA":
+                        self.consume("COMMA")
+                self.consume("RPAREN")
+                node = FunctionCall(name, args)
         # --- Unary operators handled in factor() ---
         else:
             raise SyntaxError(f"Unexpected token in primary(): {tok}")
@@ -482,4 +488,4 @@ class Parser:
 
     # Delegate everything else to primary() which returns a node
         return self.primary()
-    
+
