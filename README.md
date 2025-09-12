@@ -64,7 +64,7 @@ a += 10     # a is now 4 (wraps around 255)
 * **Operators**
 
   * Arithmetic: `+`, `-`, `*`, `/`
-  * Comparison: `==`, `!=`, `<`, `>`, `<=`, `>=`, `in`
+  * Comparison: `==`, `!=`, `<`, `>`, `<=`, `>=`, `<=>`, `in`
   * Logical: `and`, `or`, `xor`, `not`, `then`, `nand`
   * Unary: `+`, `-`, `~`
 

@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=added spaceship operator <=> because my third cat wanted to sort things out faster (he's lazy)"
+if "%MSG%"=="" set "MSG=Readme upd p.2"
 
 git status
 
