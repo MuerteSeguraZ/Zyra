@@ -1,11 +1,9 @@
 @echo off
 
-REM a
-
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=Uint stuff and some dec bugfixes, my cat approves btw"
+if "%MSG%"=="" set "MSG=added != because my other cat didnt like there was no not equal"
 
 git status
 

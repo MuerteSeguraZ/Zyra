@@ -17,6 +17,22 @@
     dec int y = 10     # explicit type
     ```
 
+* **Unsigned Integers**
+
+* Zyra supports fixed-size unsigned integer types:
+
+  * `uint8`  - 8-bit unsigned integer (0 to 255)
+  * `uint16` - 16-bit unsigned integer (0 to 65,535)
+  * `uint32` - 32-bit unsigned integer (0 to 4,294,967,295)
+  * `uint64` - 64-bit unsigned integer (0 to 18,446,774,073,709,551,615)
+
+* Values automatically wrap around when exceeding their maximum:
+
+```zyra
+dec uint8 a = 250
+a += 10     # a is now 4 (wraps around 255)
+```
+
 * **Data Structures**
 
   * **Arrays**: `[1, 2, 3]`
@@ -48,7 +64,7 @@
 * **Operators**
 
   * Arithmetic: `+`, `-`, `*`, `/`
-  * Comparison: `==`, `<`, `>`, `<=`, `>=`, `in`
+  * Comparison: `==`, `!=`, `<`, `>`, `<=`, `>=`, `in`
   * Logical: `and`, `or`, `xor`, `not`, `then`, `nand`
   * Unary: `+`, `-`, `~`
 
@@ -97,6 +113,14 @@ if (x > 5) {
     print("x is greater than 5")
 } else {
     print("x is 5 or less")
+}
+```
+
+```zyra
+if (x != 0) {
+    print("x is not zero")
+} else {
+    print("x is zero")
 }
 ```
 

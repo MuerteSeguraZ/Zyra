@@ -184,6 +184,7 @@ class Interpreter:
             if node.op == "*": return left * right
             if node.op == "/": return left / right  # always float division
             if node.op == "==": return left == right
+            if node.op == "!=": return left != right
             if node.op == "<": return left < right
             if node.op == ">": return left > right
             if node.op == "<=": return left <= right

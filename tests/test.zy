@@ -1,18 +1,7 @@
-# Untyped declaration
-dec x = 42
-print(x)        # expect: 42
+dec x = 10
 
-dec uint8 a = 300
-print(a)        # expect: 44   (300 mod 256)
-
-dec uint16 b = 70000
-print(b)        # expect: 4464 (70000 mod 65536)
-
-dec uint32 c = 4294967297
-print(c)        # expect: 1    (overflow wrap)
-
-dec uint64 d = 18446744073709551616
-print(d)        # expect: 0    (wrap to 64 bits)
-
-a = 1025
-print(a)        # expect: 1 (1025 mod 256)
+if (x != 0) {
+    print("x is not zero")
+} else {
+    print("x is zero")
+}
