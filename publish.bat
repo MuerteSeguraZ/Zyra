@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=README upd"
+if "%MSG%"=="" set "MSG=Uint stuff and some dec bugfixes, my cat approves btw"
 
 git status
 

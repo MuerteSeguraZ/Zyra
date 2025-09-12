@@ -9,9 +9,12 @@ class Program(Node):
 
 class VarDecl(Node):
     def __init__(self, var_type, name, value):
-        self.var_type = var_type
+        self.var_type = var_type  # "uint8", "uint16", etc. or None
         self.name = name
         self.value = value
+
+    def __repr__(self):
+        return f"VarDecl({self.var_type}, {self.name}, {self.value})"
 
 class Assignment(Node):
     def __init__(self, name, value):
@@ -166,3 +169,10 @@ class IndexAccess(Node):
         self.collection = collection  # e.g., Identifier("person")
         self.index = index            # expression for the key/index
 
+class UIntLiteral(Node):
+    def __init__(self, value, bit_size):
+        self.value = value
+        self.bit_size = bit_size
+
+    def __repr__(self):
+        return f"UIntLiteral({self.value}, {self.bit_size})"

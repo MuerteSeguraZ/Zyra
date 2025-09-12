@@ -72,9 +72,16 @@ class Parser:
         self.consume(None, "dec")
         first_id = self.consume("ID")[1]
 
+        # Case 1: typed declaration -> dec uint8 x = expr
         if self.peek()[0] == "ID":
             var_type = first_id
             name = self.consume("ID")[1]
+
+            self.consume("OP", "=")
+            value = self.expr()
+            return VarDecl(var_type, name, value)
+
+        # Case 2: untyped declaration -> dec x = expr
         else:
             var_type = None
             name = first_id
@@ -373,10 +380,18 @@ class Parser:
         elif tok[0] == "DECIMAL":
             self.consume()
             node = DecimalLiteral(tok[1][:-1])
+        
+        elif tok[0] == "ID" and tok[1] in ("uint8", "uint16", "uint32", "uint64"):
+            typename = self.consume("ID")[1]
+            self.consume("LPAREN")
+            inner_expr = self.expr()
+            self.consume("RPAREN")
+
+            bit_size = int(typename[4:])
+            node = UIntLiteral(inner_expr, bit_size)
         # --- Unary operators handled in factor() ---
         else:
-        # fallback to logic_or if nothing matched
-         node = self.logic_or()
+            raise SyntaxError(f"Unexpected token in primary(): {tok}")
 
         # --- Handle indexing / subscript: a[expr][expr]...
         while self.peek()[0] == "LBRACKET":
@@ -467,4 +482,4 @@ class Parser:
 
     # Delegate everything else to primary() which returns a node
         return self.primary()
-
+    

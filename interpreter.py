@@ -17,19 +17,32 @@ class Function:
 
 class Environment:
     def __init__(self, parent=None):
-        self.vars = {}
+        self.vars = {}  # name -> (value, type)
         self.parent = parent
 
     def get(self, name):
         if name in self.vars:
-            return self.vars[name]
+            return self.vars[name][0]  # return value only
         elif self.parent:
             return self.parent.get(name)
         else:
             raise Exception(f"Variable '{name}' not defined")
 
+    def get_type(self, name):
+        if name in self.vars:
+            return self.vars[name][1]
+        elif self.parent:
+            return self.parent.get_type(name)
+        else:
+            return None
+
     def set(self, name, value):
-        self.vars[name] = value
+        var_type = self.get_type(name)
+        if var_type in ("uint8", "uint16", "uint32", "uint64"):
+            bit_size = int(var_type[4:])
+            mask = (1 << bit_size) - 1
+            value = value & mask
+        self.vars[name] = (value, var_type)
 
 class Interpreter:
     def __init__(self):
@@ -41,23 +54,35 @@ class Interpreter:
                 self.eval(stmt)
 
         elif isinstance(node, VarDecl):
-            self.env.set(node.name, self.eval(node.value))
+            value = self.eval(node.value)
+            var_type = node.var_type
+
+            if var_type in ("uint8", "uint16", "uint32", "uint64"):
+                bit_size = int(var_type[4:])
+                mask = (1 << bit_size) - 1
+                value = value & mask
+
+            self.env.vars[node.name] = (value, var_type)  # store value + type
+
+        elif isinstance(node, UIntLiteral):
+            raw_val = self.eval(node.value)
+            mask = (1 << node.bit_size) - 1
+            return raw_val & mask
 
         elif isinstance(node, Assignment):
             self.env.set(node.name, self.eval(node.value))
 
         elif isinstance(node, AugmentedAssignment):
-            current_val = self.env.get(node.name)  # ✅ call get()
+            current_val = self.env.get(node.name)
             if node.operator == "+=":
-                self.env.set(node.name, current_val + self.eval(node.value))
+                new_val = current_val + self.eval(node.value)
             elif node.operator == "-=":
-                self.env.set(node.name, current_val - self.eval(node.value))
+                new_val = current_val - self.eval(node.value)
             elif node.operator == "*=":
-                self.env.set(node.name, current_val * self.eval(node.value))
+                new_val = current_val * self.eval(node.value)
             elif node.operator == "/=":
-                self.env.set(node.name, current_val / self.eval(node.value))
-            else:
-                raise RuntimeError(f"Unknown augmented operator {node.operator}")
+                new_val = current_val // self.eval(node.value)
+            self.env.set(node.name, new_val)
 
         elif isinstance(node, Identifier):
             return self.env.get(node.name)

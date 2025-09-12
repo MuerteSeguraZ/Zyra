@@ -1,8 +1,18 @@
-dec a = {1, 2, 3}
-dec b = {3, 4, 5}
+# Untyped declaration
+dec x = 42
+print(x)        # expect: 42
 
-print(a + b)      # {1, 2, 3, 4, 5}
-print(a * b)      # {3}
-print(a - b)      # {1, 2}
-print(2 in a)     # true
-print(5 in a)     # false
+dec uint8 a = 300
+print(a)        # expect: 44   (300 mod 256)
+
+dec uint16 b = 70000
+print(b)        # expect: 4464 (70000 mod 65536)
+
+dec uint32 c = 4294967297
+print(c)        # expect: 1    (overflow wrap)
+
+dec uint64 d = 18446744073709551616
+print(d)        # expect: 0    (wrap to 64 bits)
+
+a = 1025
+print(a)        # expect: 1 (1025 mod 256)
