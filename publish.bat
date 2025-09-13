@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=readme upd 3"
+if "%MSG%"=="" set "MSG=u didn't have enough with uints? well here's ints from 8 to 64"
 
 git status
 

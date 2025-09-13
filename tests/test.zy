@@ -1,8 +1,18 @@
-struct Header {
-    dec magic: uint32 big
-    dec version: uint16 little
-}
+dec int8 a = 120
+a += 10
+print(a)
 
-dec h = Header(magic: 0xCAFEBABE, version: 1)
-print(h.magic)
-print(h.version)
+dec uint8 b = 250
+b += 10
+print(b)
+
+dec isize c = 9223372036854775807
+c += 1
+print(c)
+
+dec usize d =  18446744073709551615
+d += 1
+print(d)
+
+print("See? It works bro")
+# lol i love my lang

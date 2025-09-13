@@ -364,6 +364,14 @@ class Parser:
         elif tok[0] == "DECIMAL":
             self.consume()
             node = DecimalLiteral(tok[1][:-1])
+
+        elif tok[0] == "ID" and tok[1] in ("int8", "int16", "int32", "int64"):
+            typename = self.consume("ID")[1]
+            self.consume("LPAREN")
+            inner_expr = self.expr()
+            self.consume("RPAREN")
+            bit_size = int(typename[3:])
+            node = IntLiteral(inner_expr, bit_size, signed=True)
         
         elif tok[0] == "ID" and tok[1] in ("uint8", "uint16", "uint32", "uint64"):
             typename = self.consume("ID")[1]

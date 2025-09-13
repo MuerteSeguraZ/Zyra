@@ -69,6 +69,18 @@ class Interpreter:
             mask = (1 << node.bit_size) - 1
             return raw_val & mask
         
+        elif isinstance(node, IntLiteral):
+            val = self.eval(node.expr)
+            bits = node.bits
+
+            if node.signed:
+                wrapped = ((val + (1 << (bits - 1))) % (1 << bits)) - (1 << (bits - 1))
+            else:
+                # unsigned wrap
+                wrapped = val % (1 << bits)
+
+            return wrapped
+        
         elif isinstance(node, SizeIntLiteral):
             val = self.eval(node.expr)
 
@@ -129,7 +141,25 @@ class Interpreter:
         
         elif isinstance(node, PrintStatement):
             value = self.eval(node.expr)
+            var_type = None
+            if isinstance(node.expr, Identifier):
+                var_type = self.env.get_type(node.expr.name)
+
+            if var_type in ("uint8", "uint16", "uint32", "uint64"):
+                bit_size = int(var_type[4:])
+                mask = (1 << bit_size) - 1
+                value = value & mask
+            elif var_type in ("int8", "int16", "int32", "int64"):
+                bit_size = int(var_type[3:])
+                value = ((value + (1 << (bit_size - 1))) % (1 << bit_size)) - (1 << (bit_size - 1))
+            elif var_type in ("isize", "usize"):
+                bits = 64
+                if var_type == "isize":
+                    value = ((value + (1 << (bits - 1))) % (1 << bits)) - (1 << (bits - 1))
+                else:
+                    value = value % (1 << bits)
             print(value)
+
 
         elif isinstance(node, CharLiteral):
             val = node.value

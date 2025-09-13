@@ -17,21 +17,42 @@
     dec int y = 10     # explicit type
     ```
 
-* **Unsigned Integers**
+* **Unsigned & Signed Integer Types**
 
-* Zyra supports fixed-size unsigned integer types:
+* Zyra supports both fixed-size unsigned and signed integers, as well as platform-sized integers:
+
+  * Unsigned integers:
 
   * `uint8`  - 8-bit unsigned integer (0 to 255)
   * `uint16` - 16-bit unsigned integer (0 to 65,535)
   * `uint32` - 32-bit unsigned integer (0 to 4,294,967,295)
   * `uint64` - 64-bit unsigned integer (0 to 18,446,774,073,709,551,615)
-  * `usize` - pointer-sized signed integer (wraps using two's complement, 64-bit by default)
+  * `usize`  - pointer-sized signed integer (wraps using two's complement, 64-bit by default)
 
-* Values automatically wrap around when exceeding their maximum:
+  * Signed integers:
+  * `int8`   - 8-bit signed integer (-128 to 127)
+  * `int16`  - 16-bit signed integer (-32,768 to 32,767)
+  * `int32`  - 32-bit signed integer (-2,147,483,648 to 2,147,483,647)
+  * `int64`  - 64-bit signed integer (-9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)
+  * `isize`  - pointer-sized signed integer (wraps using two’s complement, 64-bit by default)
+
+* Values automatically wrap around when exceeding their maximum for unsigned integers, and signed integers wrap according to two’s complement rules:
 
 ```zyra
 dec uint8 a = 250
 a += 10     # a is now 4 (wraps around 255)
+
+dec int8 b = 120
+b += 10
+print(b) # -126
+
+dec isize c = 9223372036854775807
+c += 1
+print(c)   # -9223372036854775808
+
+dec usize d =  18446744073709551615
+d += 1
+print(d) # 0
 ```
 
 * **Data Structures**

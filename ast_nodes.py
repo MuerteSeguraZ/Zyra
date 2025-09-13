@@ -184,3 +184,9 @@ class UIntLiteral(Node):
 
     def __repr__(self):
         return f"UIntLiteral({self.value}, {self.bit_size})"
+    
+class IntLiteral:
+    def __init__(self, value, bits, signed):
+        self.value = value      # raw integer value
+        self.bits = bits        # 8, 16, 32, 64 (or platform for isize/usize)
+        self.signed = signed    # True = signed, False = unsigned
