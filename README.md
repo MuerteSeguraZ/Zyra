@@ -35,6 +35,7 @@
   * `int32`  - 32-bit signed integer (-2,147,483,648 to 2,147,483,647)
   * `int64`  - 64-bit signed integer (-9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)
   * `isize`  - pointer-sized signed integer (wraps using two’s complement, 64-bit by default)
+  * `ptrdiff`- signed pointer-sized integer for storing pointer differences (wraps using two's complement, 64-bit by default)
 
 * Values automatically wrap around when exceeding their maximum for unsigned integers, and signed integers wrap according to two’s complement rules:
 

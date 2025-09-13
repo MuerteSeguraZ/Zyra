@@ -190,3 +190,10 @@ class IntLiteral:
         self.value = value      # raw integer value
         self.bits = bits        # 8, 16, 32, 64 (or platform for isize/usize)
         self.signed = signed    # True = signed, False = unsigned
+
+class PtrDiffLiteral(Node):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __repr__(self):
+        return f"PtrDiffLiteral({self.expr})"

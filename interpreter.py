@@ -61,6 +61,15 @@ class Interpreter:
                 bit_size = int(var_type[4:])
                 mask = (1 << bit_size) - 1
                 value = value & mask
+            elif var_type in ("int8", "int16", "int32", "int64"):
+                bit_size = int(var_type[3:])
+                value = ((value + (1 << (bit_size - 1))) % (1 << bit_size)) - (1 << (bit_size - 1))
+            elif var_type in ("isize", "ptrdiff"):
+                bits = 64  # pointer size
+                value = ((value + (1 << (bits - 1))) % (1 << bits)) - (1 << (bits - 1))
+            elif var_type == "usize":
+                bits = 64
+                value = value % (1 << bits)
 
             self.env.vars[node.name] = (value, var_type)  # store value + type
 
@@ -152,14 +161,20 @@ class Interpreter:
             elif var_type in ("int8", "int16", "int32", "int64"):
                 bit_size = int(var_type[3:])
                 value = ((value + (1 << (bit_size - 1))) % (1 << bit_size)) - (1 << (bit_size - 1))
-            elif var_type in ("isize", "usize"):
+            elif var_type in ("isize", "ptrdiff"):
+                bits = 64  # pointer size
+                value = ((value + (1 << (bits - 1))) % (1 << bits)) - (1 << (bits - 1))
+            elif var_type == "usize":
                 bits = 64
-                if var_type == "isize":
-                    value = ((value + (1 << (bits - 1))) % (1 << bits)) - (1 << (bits - 1))
-                else:
-                    value = value % (1 << bits)
+                value = value % (1 << bits)
             print(value)
 
+        elif isinstance(node, PtrDiffLiteral):
+            value = self.eval(node.expr)
+            bits = 64  # pointer size
+            # two's complement wrapping
+            wrapped = ((value + (1 << (bits - 1))) % (1 << bits)) - (1 << (bits - 1))
+            return wrapped
 
         elif isinstance(node, CharLiteral):
             val = node.value

@@ -388,6 +388,13 @@ class Parser:
             self.consume("RPAREN")
             node = SizeIntLiteral(inner_expr, signed=(typename == "isize"))
 
+        elif tok[0] == "ID" and tok[1] == "ptrdiff":
+            self.consume("ID")
+            self.consume("LPAREN")
+            inner_expr = self.expr()
+            self.consume("RPAREN")
+            node = PtrDiffLiteral(inner_expr)
+
         # -- Identifiers here --
         elif tok[0] == "ID":
             name = self.consume("ID")[1]

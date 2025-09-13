@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=u didn't have enough with uints? well here's ints from 8 to 64"
+if "%MSG%"=="" set "MSG=ptrdiff (small upd cuz now im engrossed in lowlevel stuff)"
 
 git status
 
