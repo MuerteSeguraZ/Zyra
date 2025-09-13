@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=ptrdiff (small upd cuz now im engrossed in lowlevel stuff)"
+if "%MSG%"=="" set "MSG=test and readme upd"
 
 git status
 

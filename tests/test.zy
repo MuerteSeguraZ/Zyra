@@ -1,23 +1,44 @@
-# Test ptrdiff
+# Declare variables
+dec x = 10
+dec y = 20
 
-# declare some ptrdiff variables
+# Simple greeting
+fnc greet(name) {
+    print("Hello, " + name + "!")
+}
+
+greet("Brave Zyra User")   # Hello, Brave Zyra User!
+
+# Pointer-style arithmetic
 dec ptrdiff pd1 = ptrdiff(100)
-dec ptrdiff pd2 = ptrdiff(40)
+dec ptrdiff pd2 = ptrdiff(250)
 
-# pointer difference arithmetic
-dec ptrdiff diff = pd1 - pd2
-print(diff)          # expected: 60
+dec ptrdiff diff = pd2 - pd1
+print("Pointer difference: " + diff)   # 150
 
-# negative difference
-dec ptrdiff neg_diff = pd2 - pd1
-print(neg_diff)      # expected: -60
+# Wraparound with unsigned integer
+dec uint8 u = 250
+u += 10
+print("Wrapped uint8: " + u)          # 4
 
-# wrapping test (simulate overflow)
-dec ptrdiff big = ptrdiff(9223372036854775807)  # max int64
-dec ptrdiff wrapped = big + ptrdiff(10)
-print(wrapped)       # expected: -9223372036854775799
+# Spaceship operator example
+dec a = 5
+dec b = 10
+print("Compare a and b: " + (a <=> b)) # -1 (a < b)
 
-# mixed arithmetic with integers
-dec int64 x = 50
-dec ptrdiff sum = diff + ptrdiff(x)
-print(sum)           # expected: 110
+# Logical madness
+dec bool result = (x < y) nand (y > 5)
+print("Logic with nand: " + result)    # False
+
+# Array & for-in loop
+arr = [1, 2, 3, 4, 5]
+for item in arr {
+    print("Item: " + item)
+}
+
+# Try/catch throw example
+try {
+    throw "Something went wrong!"
+} catch (e) {
+    print("Caught: " + e)
+}

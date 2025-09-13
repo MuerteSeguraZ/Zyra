@@ -56,6 +56,32 @@ d += 1
 print(d) # 0
 ```
 
+```zyra
+# Test ptrdiff
+
+# declare some ptrdiff variables
+dec ptrdiff pd1 = ptrdiff(100)
+dec ptrdiff pd2 = ptrdiff(40)
+
+# pointer difference arithmetic
+dec ptrdiff diff = pd1 - pd2
+print(diff)          # expected: 60
+
+# negative difference
+dec ptrdiff neg_diff = pd2 - pd1
+print(neg_diff)      # expected: -60
+
+# wrapping test (simulate overflow)
+dec ptrdiff big = ptrdiff(9223372036854775807)  # max int64
+dec ptrdiff wrapped = big + ptrdiff(10)
+print(wrapped)       # expected: -9223372036854775799
+
+# mixed arithmetic with integers
+dec int64 x = 50
+dec ptrdiff sum = diff + ptrdiff(x)
+print(sum)           # expected: 110
+```
+
 * **Data Structures**
 
   * **Arrays**: `[1, 2, 3]`
