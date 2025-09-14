@@ -27,6 +27,7 @@
   * `uint16` - 16-bit unsigned integer (0 to 65,535)
   * `uint32` - 32-bit unsigned integer (0 to 4,294,967,295)
   * `uint64` - 64-bit unsigned integer (0 to 18,446,774,073,709,551,615)
+  * `uint128` - 128-bit unsigned integer (0 to 340,282,366,920,938,463,463,374,607,431,768,211,455)
   * `usize`  - pointer-sized signed integer (wraps using two's complement, 64-bit by default)
 
   * Signed integers:
@@ -34,6 +35,7 @@
   * `int16`  - 16-bit signed integer (-32,768 to 32,767)
   * `int32`  - 32-bit signed integer (-2,147,483,648 to 2,147,483,647)
   * `int64`  - 64-bit signed integer (-9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)
+  * `int128` - 128-bit signed integer (-170,141,183,460,469,231,731,687,303,715,884,105,728 to 170,141,183,460,469,231,731,687,303,715,884,105,727)
   * `isize`  - pointer-sized signed integer (wraps using two’s complement, 64-bit by default)
   * `ptrdiff`- signed pointer-sized integer for storing pointer differences (wraps using two's complement, 64-bit by default)
 
@@ -54,6 +56,14 @@ print(c)   # -9223372036854775808
 dec usize d =  18446744073709551615
 d += 1
 print(d) # 0
+
+dec int128 a = 170141183460469231731687303715884105727
+a += 1
+print(a)   # -170141183460469231731687303715884105728
+
+dec uint128 b = 340282366920938463463374607431768211455
+b += 1
+print(b)   
 ```
 
 ```zyra

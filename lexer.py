@@ -8,7 +8,7 @@ TOKEN_SPEC = [
     ("BOOL", r"(true|false)"),
     ("NULL", r"null"),
     ("ID", r"[A-Za-z_][A-Za-z0-9_]*"),
-    ("CHAR", r"'(\\.|[^'\\])'"),   # <--- NEW for char literals
+    ("CHAR", r"'(\\.|[^'\\])'"),
 
     # Multi-character operators must come before single-char
     ("OP", r"(<=>|\+=|-=|\*=|/=|==|!=|<=|>=|\+|\-|\*|/|=|<|>|\~)"),

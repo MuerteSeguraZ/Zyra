@@ -1,44 +1,7 @@
-# Declare variables
-dec x = 10
-dec y = 20
+dec int128 a = 170141183460469231731687303715884105727
+a += 1
+print(a)   # -170141183460469231731687303715884105728
 
-# Simple greeting
-fnc greet(name) {
-    print("Hello, " + name + "!")
-}
-
-greet("Brave Zyra User")   # Hello, Brave Zyra User!
-
-# Pointer-style arithmetic
-dec ptrdiff pd1 = ptrdiff(100)
-dec ptrdiff pd2 = ptrdiff(250)
-
-dec ptrdiff diff = pd2 - pd1
-print("Pointer difference: " + diff)   # 150
-
-# Wraparound with unsigned integer
-dec uint8 u = 250
-u += 10
-print("Wrapped uint8: " + u)          # 4
-
-# Spaceship operator example
-dec a = 5
-dec b = 10
-print("Compare a and b: " + (a <=> b)) # -1 (a < b)
-
-# Logical madness
-dec bool result = (x < y) nand (y > 5)
-print("Logic with nand: " + result)    # False
-
-# Array & for-in loop
-arr = [1, 2, 3, 4, 5]
-for item in arr {
-    print("Item: " + item)
-}
-
-# Try/catch throw example
-try {
-    throw "Something went wrong!"
-} catch (e) {
-    print("Caught: " + e)
-}
+dec uint128 b = 340282366920938463463374607431768211455
+b += 1
+print(b)   

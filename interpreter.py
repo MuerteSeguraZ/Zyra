@@ -38,10 +38,19 @@ class Environment:
 
     def set(self, name, value):
         var_type = self.get_type(name)
-        if var_type in ("uint8", "uint16", "uint32", "uint64"):
+        if var_type in ("uint8", "uint16", "uint32", "uint64", "uint128"):
             bit_size = int(var_type[4:])
             mask = (1 << bit_size) - 1
             value = value & mask
+        elif var_type in ("int8", "int16", "int32", "int64", "int128"):
+            bit_size = int(var_type[3:])
+            value = ((value + (1 << (bit_size - 1))) % (1 << bit_size)) - (1 << (bit_size - 1))
+        elif var_type in ("isize", "ptrdiff"):
+            bits = 64
+            value = ((value + (1 << (bits - 1))) % (1 << bits)) - (1 << (bits - 1))
+        elif var_type == "usize":
+            bits = 64
+            value = value % (1 << bits)
         self.vars[name] = (value, var_type)
 
 class Interpreter:
@@ -57,11 +66,11 @@ class Interpreter:
             value = self.eval(node.value)
             var_type = node.var_type
 
-            if var_type in ("uint8", "uint16", "uint32", "uint64"):
+            if var_type in ("uint8", "uint16", "uint32", "uint64", "uint128"):
                 bit_size = int(var_type[4:])
                 mask = (1 << bit_size) - 1
                 value = value & mask
-            elif var_type in ("int8", "int16", "int32", "int64"):
+            elif var_type in ("int8", "int16", "int32", "int64", "int128"):
                 bit_size = int(var_type[3:])
                 value = ((value + (1 << (bit_size - 1))) % (1 << bit_size)) - (1 << (bit_size - 1))
             elif var_type in ("isize", "ptrdiff"):
@@ -79,17 +88,21 @@ class Interpreter:
             return raw_val & mask
         
         elif isinstance(node, IntLiteral):
-            val = self.eval(node.expr)
+            val = node.value
+            if isinstance(val, Literal):
+                val = self.eval(val)   # unwrap inner literal
+    
             bits = node.bits
 
             if node.signed:
+                # Signed two's complement wrap
                 wrapped = ((val + (1 << (bits - 1))) % (1 << bits)) - (1 << (bits - 1))
             else:
-                # unsigned wrap
+                # Unsigned wrap
                 wrapped = val % (1 << bits)
 
             return wrapped
-        
+
         elif isinstance(node, SizeIntLiteral):
             val = self.eval(node.expr)
 
