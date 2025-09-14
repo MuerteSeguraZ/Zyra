@@ -243,12 +243,40 @@ Zyra supports single-line messages (//), multi-line messages (/* */) and hashtag
 
 ---
 
+
+
 ## Installation & Running
 
-To run Zyra code:
+To run Zyra code normally:
 
 ```bash
 zyra <file.zy>
+```
+
+### Optional Flags
+
+* `-t` or `--tokens` — Print tokens only (lexical analysis):
+
+```bash
+zyra -t <file.zy>
+```
+
+* `-a` or `--ast` — Print the AST only (parsed structure):
+
+```bash
+zyra -a <file.zy>
+```
+
+* `-d` or `--debug` — Enable debug mode during execution:
+
+```bash
+zyra -d <file.zy>
+```
+
+Flags can be combined with the filename. For example, to run in debug mode:
+
+```bash
+zyra -d <file.zy>
 ```
 
 ---
