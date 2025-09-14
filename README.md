@@ -28,6 +28,7 @@
   * `uint32` - 32-bit unsigned integer (0 to 4,294,967,295)
   * `uint64` - 64-bit unsigned integer (0 to 18,446,774,073,709,551,615)
   * `uint128` - 128-bit unsigned integer (0 to 340,282,366,920,938,463,463,374,607,431,768,211,455)
+  * `uint256` - 256-bit unsigned integer (0 to 115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457,584,007,913,129,639,935)
   * `usize`  - pointer-sized signed integer (wraps using two's complement, 64-bit by default)
 
   * Signed integers:
@@ -36,6 +37,7 @@
   * `int32`  - 32-bit signed integer (-2,147,483,648 to 2,147,483,647)
   * `int64`  - 64-bit signed integer (-9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)
   * `int128` - 128-bit signed integer (-170,141,183,460,469,231,731,687,303,715,884,105,728 to 170,141,183,460,469,231,731,687,303,715,884,105,727)
+  * `int256` - 256-bit signed integer (-57,896,044,618,658,097,711,785,492,504,343,953,926,634,992,332,820,282,019,728,200,395,656,481,996,864 to 57,896,044,618,658,097,711,785,492,504,343,953,926,634,992,332,820,282,019,728,200,395,656,480,000)
   * `isize`  - pointer-sized signed integer (wraps using two’s complement, 64-bit by default)
   * `ptrdiff`- signed pointer-sized integer for storing pointer differences (wraps using two's complement, 64-bit by default)
 
@@ -63,7 +65,17 @@ print(a)   # -170141183460469231731687303715884105728
 
 dec uint128 b = 340282366920938463463374607431768211455
 b += 1
-print(b)   
+print(b)
+
+# int256 test
+dec int256 a = 57896044618658097711785492504343953926634992332820282019728792003956564819967
+a += 1
+print(a)
+
+# uint256 test
+dec uint256 b = 115792089237316195423570985008687907853269984665640564039457584007913129639935
+b += 1
+print(b)
 ```
 
 ```zyra
