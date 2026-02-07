@@ -1,2 +1,2 @@
 @echo off
-py "%~dp0runner.py" %*
+py "%~dp0main.py" %*

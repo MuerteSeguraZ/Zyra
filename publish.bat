@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=add support for typedef structs"
+if "%MSG%"=="" set "MSG=much better runner"
 
 git status
 
