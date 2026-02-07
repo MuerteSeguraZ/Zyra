@@ -1,0 +1,436 @@
+// ========================================
+// Example 1: Basic Features
+// ========================================
+
+// Variables with type inference
+dec x = 42
+dec name = "Alice"
+dec pi = 3.14159d
+
+// Typed variables
+dec uint32 counter = 0
+dec int64 temperature = -273
+
+// Constants
+const MAX_SIZE = 1000
+const GREETING = "Hello, World!"
+
+print(GREETING)
+print(counter)
+
+// ========================================
+// Example 2: Control Flow
+// ========================================
+
+// If-elif-else
+dec score = 85
+
+if (score >= 90) {
+    print("Grade: A")
+} elif (score >= 80) {
+    print("Grade: B")
+} elif (score >= 70) {
+    print("Grade: C")
+} else {
+    print("Grade: F")
+}
+
+// For loop with ranges
+print("Counting to 5:")
+for i in 1..=5 {
+    print(i)
+}
+
+// Traditional for loop
+dec sum = 0
+for (i = 1; i <= 10; i += 1) {
+    sum += i
+}
+print(sum)  // 55
+
+// While loop
+dec countdown = 5
+while (countdown > 0) {
+    print(countdown)
+    countdown -= 1
+}
+
+// ========================================
+// Example 3: Functions
+// ========================================
+
+// Basic function
+fnc greet(name) {
+    print("Hello, " + name + "!")
+}
+
+greet("Bob")
+
+// Typed function with return type
+fnc add(int32 a, int32 b) -> int32 {
+    return a + b
+}
+
+print(add(10, 20))
+
+// Function with default parameters
+fnc power(base, exp = 2) {
+    dec result = 1
+    for (i = 0; i < exp; i += 1) {
+        result *= base
+    }
+    return result
+}
+
+print(power(5))     // 25
+print(power(2, 8))  // 256
+
+// Recursive function
+fnc factorial(n) {
+    if (n <= 1) {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
+
+print(factorial(5))  // 120
+
+// ========================================
+// Example 4: Data Structures
+// ========================================
+
+// Arrays
+dec numbers = [1, 2, 3, 4, 5]
+print(numbers[0])
+print(numbers[2])
+
+// Dictionaries
+dec person = {
+    "name": "Alice",
+    "age": 30,
+    "city": "NYC"
+}
+print(person["name"])
+print(person["age"])
+
+// Sets
+dec fruits = {"apple", "banana", "orange"}
+dec veggies = {"carrot", "banana", "lettuce"}
+
+// Set operations
+dec union = fruits + veggies
+dec intersection = fruits * veggies
+print(intersection)
+
+// Tuples
+dec coordinates = (10, 20, 30)
+print(coordinates)
+
+// ========================================
+// Example 5: Structs
+// ========================================
+
+struct Point {
+    x: int32,
+    y: int32
+}
+
+// Create struct instance
+dec p1 = Point { x: 10, y: 20 }
+print(p1)
+
+struct Person {
+    name: String,
+    age: int32,
+    active: bool = true
+}
+
+dec alice = Person {
+    name: "Alice",
+    age: 30
+}
+
+// ========================================
+// Example 6: Pattern Matching
+// ========================================
+
+fnc classify_number(n) {
+    match n {
+        0 => {
+            print("Zero")
+        },
+        5 => {
+            print("Five")
+        },
+        _ => {
+            print("Other")
+        }
+    }
+}
+
+classify_number(0)
+classify_number(5)
+classify_number(100)
+
+// ========================================
+// Example 7: Error Handling
+// ========================================
+
+fnc divide(a, b) {
+    if (b == 0) {
+        throw "Division by zero!"
+    }
+    return a / b
+}
+
+try {
+    print(divide(10, 2))
+    print(divide(10, 0))  // Will throw
+} catch (e) {
+    print("Error caught: " + e)
+}
+
+// ========================================
+// Example 8: Advanced Integer Types
+// ========================================
+
+// Unsigned integers with overflow wrapping
+dec uint8 small = uint8(300)  // Wraps to 44
+print(small)
+
+// Signed integers
+dec int8 tiny = int8(-200)  // Wraps
+print(tiny)
+
+// Large integers
+dec uint256 huge = uint256(12345678901234567890)
+print(huge)
+
+// Platform-dependent sizes
+dec usize idx = usize(100)
+dec isize offset = isize(-50)
+
+// ========================================
+// Example 9: Operators
+// ========================================
+
+// Spaceship operator
+dec cmp = 5 <=> 10  // -1
+print(cmp)
+
+dec cmp2 = 10 <=> 10  // 0
+print(cmp2)
+
+// Logical implication
+dec implies = (false then true)  // true
+print(implies)
+
+// NAND
+dec nand_result = true nand true  // false
+print(nand_result)
+
+// Bitwise operations
+dec bits = 0b1010
+dec shifted = bits << 2  // 0b101000
+print(shifted)
+
+dec masked = 0xFF & 0x0F  // 0x0F
+print(masked)
+
+// ========================================
+// Example 10: Ternary Operator
+// ========================================
+
+dec age = 20
+dec status = age >= 18 ? "adult" : "minor"
+print(status)
+
+// ========================================
+// Example 11: String Interpolation (simplified)
+// ========================================
+
+dec username = "Bob"
+dec user_age = 25
+// Note: Full interpolation requires tokenizer enhancement
+printf("User: %s, Age: %d
+", username, user_age)
+
+// ========================================
+// Example 12: Lambdas and Higher-Order Functions
+// ========================================
+
+// Lambda expressions
+dec square = |x| x * x
+print(square(5))  // 25
+
+dec add_lambda = |a, b| a + b
+print(add_lambda(3, 7))  // 10
+
+// ========================================
+// Example 13: Switch Statement
+// ========================================
+
+dec day = 3
+
+//switch (day) {
+//    case 1:
+//        print("Monday")
+//        break
+//    case 2:
+//        print("Tuesday")
+//        break
+//    case 3:
+//        print("Wednesday")
+//        break
+//    default:
+//        print("Other day")
+//}
+
+// ========================================
+// Example 14: Augmented Assignment
+// ========================================
+
+dec value = 10
+value += 5   // 15
+value *= 2   // 30
+value -= 10  // 20
+value /= 4   // 5
+print(value)
+
+// Bitwise augmented
+dec flags = 0b1010
+flags |= 0b0101   // OR
+flags &= 0b1111   // AND
+flags ^= 0b0001   // XOR
+print(flags)
+
+// ========================================
+// Example 15: Complex Example - FizzBuzz
+// ========================================
+
+print("\nFizzBuzz:")
+for i in 1..=20 {
+    if (i % 15 == 0) {
+        print("FizzBuzz")
+    } elif (i % 3 == 0) {
+        print("Fizz")
+    } elif (i % 5 == 0) {
+        print("Buzz")
+    } else {
+        print(i)
+    }
+}
+
+// ========================================
+// Example 16: Array and Set Operations
+// ========================================
+
+dec arr = [10, 20, 30, 40, 50]
+
+// Array slicing (when implemented)
+// dec slice = arr[1:4]
+
+// Set membership
+dec my_set = {1, 2, 3, 4, 5}
+dec has_three = 3 in my_set
+print(has_three)  // true
+
+// ========================================
+// Example 17: Nested Structures
+// ========================================
+
+dec matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+print(matrix[0][0])  // 1
+print(matrix[1][1])  // 5
+print(matrix[2][2])  // 9
+
+// Nested dictionaries
+dec config = {
+    "database": {
+        "host": "localhost",
+        "port": 5432
+    },
+    "cache": {
+        "enabled": true
+    }
+}
+
+print(config["database"]["host"])
+
+// ========================================
+// Example 18: Type Conversions
+// ========================================
+
+dec str_num = "42"
+// dec num = int(str_num)  // When built-in int() is available
+
+dec float_val = 3.14
+// dec int_val = int(float_val)  // 3
+
+// Character operations
+dec char = 'A'
+print(char)
+
+dec newline = '\n'
+// print("Before" + newline + "After")
+
+// ========================================
+// Example 19: Guard Clauses in Match
+// ========================================
+
+fnc check_value(x) {
+    match x {
+        n if n < 0 => {
+            print("Negative")
+        },
+        n if n == 0 => {
+            print("Zero")
+        },
+        n if n > 0 => {
+            print("Positive")
+        }
+    }
+}
+
+check_value(-5)
+check_value(0)
+check_value(42)
+
+// ========================================
+// Example 20: Complete Program - Calculator
+// ========================================
+
+print("\n=== Simple Calculator ===")
+
+fnc calculate(op, a, b) {
+    match op {
+        "+" => { return a + b },
+        "-" => { return a - b },
+        "*" => { return a * b },
+        "/" => {
+            if (b == 0) {
+                throw "Division by zero"
+            }
+            return a / b
+        },
+        _ => {
+            throw "Unknown operation"
+        }
+    }
+}
+
+try {
+    print(calculate("+", 10, 5))   // 15
+    print(calculate("-", 10, 5))   // 5
+    print(calculate("*", 10, 5))   // 50
+    print(calculate("/", 10, 5))   // 2
+} catch (e) {
+    print("Error: " + e)
+}
+
+print("\n=== All examples completed! ===")

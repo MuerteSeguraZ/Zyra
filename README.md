@@ -1,314 +1,369 @@
-# Zyra Programming Language
+# Enhanced Programming Language
 
-**Zyra** is a high-level, modern programming language designed to be expressive, flexible, and easy to use. It supports imperative, functional, and structured programming paradigms with rich data structures, control flow constructs, and first-class functions.
-
----
+A modern, feature-rich programming language with strong type support, pattern matching, and Vale-inspired design principles.
 
 ## Features
 
-* **Variables & Types**
+### Type System
+- **Basic Types**: integers, floats, strings, characters, booleans, null
+- **Integer Types**: 
+  - Unsigned: `uint8`, `uint16`, `uint32`, `uint64`, `uint128`, `uint256`
+  - Signed: `int8`, `int16`, `int32`, `int64`, `int128`, `int256`
+  - Platform-dependent: `usize`, `isize`, `ptrdiff`
+- **Special Literals**:
+  - BigInt: `123456789n`
+  - Decimal: `3.14159d`
+  - Hex: `0xFF`, `0x1A.4F`
+  - Binary: `0b1010`
+  - Octal: `0o77`
+- **Collections**: Arrays, Tuples, Sets, Dictionaries, Ranges
 
-  * Dynamic and optionally typed variables.
-  * Supports `dec` for variable declaration with optional type annotation.
-  * Examples:
-
-    ```zyra
-    dec x = 5          # implicit type
-    dec int y = 10     # explicit type
-    ```
-
-* **Unsigned & Signed Integer Types**
-
-* Zyra supports both fixed-size unsigned and signed integers, as well as platform-sized integers:
-
-  * Unsigned integers:
-
-  * `uint8`  - 8-bit unsigned integer (0 to 255)
-  * `uint16` - 16-bit unsigned integer (0 to 65,535)
-  * `uint32` - 32-bit unsigned integer (0 to 4,294,967,295)
-  * `uint64` - 64-bit unsigned integer (0 to 18,446,774,073,709,551,615)
-  * `uint128` - 128-bit unsigned integer (0 to 340,282,366,920,938,463,463,374,607,431,768,211,455)
-  * `uint256` - 256-bit unsigned integer (0 to 115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457,584,007,913,129,639,935)
-  * `usize`  - pointer-sized signed integer (wraps using two's complement, 64-bit by default)
-
-  * Signed integers:
-  * `int8`   - 8-bit signed integer (-128 to 127)
-  * `int16`  - 16-bit signed integer (-32,768 to 32,767)
-  * `int32`  - 32-bit signed integer (-2,147,483,648 to 2,147,483,647)
-  * `int64`  - 64-bit signed integer (-9,223,372,036,854,775,808 to 9,223,372,036,854,775,807)
-  * `int128` - 128-bit signed integer (-170,141,183,460,469,231,731,687,303,715,884,105,728 to 170,141,183,460,469,231,731,687,303,715,884,105,727)
-  * `int256` - 256-bit signed integer (-57,896,044,618,658,097,711,785,492,504,343,953,926,634,992,332,820,282,019,728,200,395,656,481,996,864 to 57,896,044,618,658,097,711,785,492,504,343,953,926,634,992,332,820,282,019,728,200,395,656,480,000)
-  * `isize`  - pointer-sized signed integer (wraps using two’s complement, 64-bit by default)
-  * `ptrdiff`- signed pointer-sized integer for storing pointer differences (wraps using two's complement, 64-bit by default)
-
-* Values automatically wrap around when exceeding their maximum for unsigned integers, and signed integers wrap according to two’s complement rules:
-
-```zyra
-dec uint8 a = 250
-a += 10     # a is now 4 (wraps around 255)
-
-dec int8 b = 120
-b += 10
-print(b) # -126
-
-dec isize c = 9223372036854775807
-c += 1
-print(c)   # -9223372036854775808
-
-dec usize d =  18446744073709551615
-d += 1
-print(d) # 0
-
-dec int128 a = 170141183460469231731687303715884105727
-a += 1
-print(a)   # -170141183460469231731687303715884105728
-
-dec uint128 b = 340282366920938463463374607431768211455
-b += 1
-print(b)
-
-# int256 test
-dec int256 a = 57896044618658097711785492504343953926634992332820282019728792003956564819967
-a += 1
-print(a)
-
-# uint256 test
-dec uint256 b = 115792089237316195423570985008687907853269984665640564039457584007913129639935
-b += 1
-print(b)
+### Variables
+```javascript
+dec x = 42                    // Type-inferred mutable variable
+dec uint32 count = 0          // Typed variable
+const PI = 3.14159d           // Constant
+dec mut value = 100           // Explicitly mutable
 ```
 
-```zyra
-# Test ptrdiff
-
-# declare some ptrdiff variables
-dec ptrdiff pd1 = ptrdiff(100)
-dec ptrdiff pd2 = ptrdiff(40)
-
-# pointer difference arithmetic
-dec ptrdiff diff = pd1 - pd2
-print(diff)          # expected: 60
-
-# negative difference
-dec ptrdiff neg_diff = pd2 - pd1
-print(neg_diff)      # expected: -60
-
-# wrapping test (simulate overflow)
-dec ptrdiff big = ptrdiff(9223372036854775807)  # max int64
-dec ptrdiff wrapped = big + ptrdiff(10)
-print(wrapped)       # expected: -9223372036854775799
-
-# mixed arithmetic with integers
-dec int64 x = 50
-dec ptrdiff sum = diff + ptrdiff(x)
-print(sum)           # expected: 110
-```
-
-* **Data Structures**
-
-  * **Arrays**: `[1, 2, 3]`
-  * **Tuples**: `(1, 2, 3)` or empty `()`
-  * **Dictionaries**: `{key: value, ...}`
-  * **Sets**: `{1, 2, 3}`
-  * **Null / Boolean / Strings / Chars / BigInt / Decimal**
-
-* **Control Flow**
-
-  * **Conditionals**: `if`, `else`
-  * **Loops**: `while`, `for`, `for ... in ...`
-  * **Switch / Case**: `switch { case ...: ... default: ... }`
-  * **Try/Catch / Throw**: `try { ... } catch (e) { ... }`
-  * **Break / Continue** statements
-
-* **Functions**
-
-  * Defined with `fnc` keyword
-  * Supports optional parameter types
-  * Example:
-
-    ```zyra
-    fnc add(int a, int b) {
-        return a + b
-    }
-    ```
-
-* **Operators**
-
-  * Arithmetic: `+`, `-`, `*`, `/`
-  * Comparison: `==`, `!=`, `<`, `>`, `<=`, `>=`, `<=>`, `in`
-  * Logical: `and`, `or`, `xor`, `not`, `then`, `nand`
-  * Unary: `+`, `-`, `~`
-
-* **Assignments**
-
-  * Standard: `x = 5`
-  * Augmented: `x += 1`, `y -= 2`, etc.
-
-* **Printing**
-
-  * `print(expr)` — prints a value
-  * `printf(format, args...)` — formatted printing
-
-* **Function Calls & Indexing**
-
-  * Supports function calls: `foo(1, 2)`
-  * Index access: `arr[0]`, `matrix[0][1]`
-
----
-
-## Syntax Examples
-
-Nearly all examples don't have the declaration. Add it via:
-
-```zyra
-dec x = <number>
-```
-
-For example:
-
-```zyra
-dec x = 10
-```
-
-### Variable Declaration
-
-```zyra
-dec x = 10
-dec string name = "ZyraLang"
-```
-
-### Conditional Statements
-
-```zyra
-if (x > 5) {
-    print("x is greater than 5")
+### Control Flow
+```javascript
+// If-elif-else
+if (x > 0) {
+    print("positive")
+} elif (x < 0) {
+    print("negative")
 } else {
-    print("x is 5 or less")
-}
-```
-
-```zyra
-if (x != 0) {
-    print("x is not zero")
-} else {
-    print("x is zero")
-}
-```
-
-### Loops
-
-```zyra
-for (i = 0; i < 5; i += 1) {
-    print(i)
+    print("zero")
 }
 
-for item in [1, 2, 3] {
-    print(item)
+// For loops
+for (i = 0; i < 10; i++) { }
+for x in 1..10 { }            // Range iteration
+for item in array { }         // Collection iteration
+
+// While loops
+while (condition) { }
+
+// Switch
+switch (value) {
+    case 1: print("one") break
+    case 2: print("two") break
+    default: print("other")
+}
+
+// Pattern matching
+match value {
+    0 => { print("zero") },
+    1..=10 => { print("small") },
+    n if n > 100 => { print("large") },
+    _ => { print("other") }
 }
 ```
 
 ### Functions
-
-```zyra
+```javascript
+// Basic function
 fnc greet(name) {
     print("Hello, " + name)
 }
 
-greet("World")
-```
-
-### Switch Statement
-
-```zyra
-switch (x) {
-    case 1:
-        print("One")
-    case 2:
-        print("Two")
-    default:
-        print("Other")
+// Typed function with return type
+fnc add(int32 a, int32 b) -> int32 {
+    return a + b
 }
-```
 
-### Try / Catch
-
-```zyra
-try {
-    throw "Error!"
-} catch (e) {
-    print(e)
+// Default parameters
+fnc power(base, exp = 2) {
+    return base ** exp
 }
+
+// Async functions
+async fnc fetchData() {
+    dec data = await getData()
+    return data
+}
+
+// Lambda expressions
+dec square = |x| x * x
+dec add = |a, b| a + b
 ```
+
+### Data Structures
+```javascript
+// Structs
+struct Point {
+    x: int32,
+    y: int32
+}
+
+dec p = Point { x: 10, y: 20 }
+
+// Enums
+enum Color {
+    Red,
+    Green,
+    Blue,
+    RGB(int32, int32, int32)
+}
+
+// Type aliases
+type UserId = uint64
+```
+
+### Operators
+
+#### Arithmetic
+- `+`, `-`, `*`, `/`, `//` (floor division), `%` (modulo), `**` (power)
+
+#### Comparison
+- `==`, `!=`, `<`, `>`, `<=`, `>=`
+- `<=>` (spaceship/three-way comparison)
+- `===`, `!==` (identity comparison)
+
+#### Logical
+- `and` / `&&`, `or` / `||`, `not` / `!`
+- `xor` (exclusive or)
+- `then` (logical implication)
+- `nand` (not and)
+
+#### Bitwise
+- `&` (and), `|` (or), `^` (xor), `~` (not)
+- `<<` (left shift), `>>` (right shift)
+
+#### Augmented Assignment
+- `+=`, `-=`, `*=`, `/=`, `//=`, `%=`, `**=`
+- `&=`, `|=`, `^=`, `<<=`, `>>=`
+
+#### Other
+- `? :` (ternary)
+- `++`, `--` (increment/decrement)
+- `in` (membership)
+- `..`, `..=` (ranges)
 
 ### Collections
 
-```zyra
-arr = [1, 2, 3]
-tup = (1, 2, 3)
-dict = { "name": "Zyra", "version": 1.0 }
-set = {1, 2, 3}
+```javascript
+// Arrays
+dec arr = [1, 2, 3, 4, 5]
+print(arr[0])
+
+// Dictionaries
+dec person = {
+    "name": "Alice",
+    "age": 30
+}
+print(person["name"])
+
+// Sets
+dec numbers = {1, 2, 3}
+dec evens = {2, 4, 6}
+dec union = numbers + evens
+dec intersection = numbers * evens
+
+// Tuples
+dec coords = (10, 20, 30)
+
+// Ranges
+dec range1 = 1..10      // 1 to 9
+dec range2 = 1..=10     // 1 to 10 (inclusive)
 ```
 
-### Messages
+### Error Handling
+```javascript
+// Try-catch with multiple catch clauses
+try {
+    dec result = divide(10, 0)
+} catch (DivisionError e) {
+    print("Division error: " + e)
+} catch (e) {
+    print("Other error: " + e)
+} finally {
+    print("Cleanup")
+}
 
-Zyra supports single-line messages (//), multi-line messages (/* */) and hashtag messages (#).
+// Throw exceptions
+throw "Something went wrong!"
+```
 
----
+### Pattern Matching
+```javascript
+match value {
+    // Literal patterns
+    0 => { print("zero") },
+    42 => { print("answer") },
+    
+    // Range patterns
+    1..=10 => { print("small") },
+    
+    // Guard clauses
+    n if n < 0 => { print("negative") },
+    
+    // Tuple patterns
+    (0, 0) => { print("origin") },
+    (x, y) => { print("point") },
+    
+    // Wildcard
+    _ => { print("default") }
+}
+```
 
+### I/O
+```javascript
+// Print with newline
+print(value)
 
+// Printf-style formatting
+printf("Name: %s, Age: %d\n", name, age)
 
-## Installation & Running
+// String interpolation (when available)
+dec name = "Alice"
+// f"Hello, {name}!"
+```
 
-To run Zyra code normally:
+### Advanced Features
+
+#### Member Access
+```javascript
+struct Person {
+    name: String,
+    age: int32
+}
+
+dec p = Person { name: "Bob", age: 25 }
+print(p.name)
+p.age = 26
+```
+
+#### Array Slicing
+```javascript
+dec arr = [1, 2, 3, 4, 5]
+// dec slice = arr[1:4]      // [2, 3, 4]
+// dec every_other = arr[::2] // [1, 3, 5]
+```
+
+#### Method Chaining
+```javascript
+// obj.method1().method2().method3()
+```
+
+## Installation & Usage
+
+### Running Programs
 
 ```bash
-zyra <file.zy>
+# Execute a file
+python3 main.py program.lang
+
+# Interactive REPL
+python3 main.py
 ```
 
-### Optional Flags
+### REPL Commands
+- `help` - Show help information
+- `exit` - Exit the REPL
+- Ctrl+D - Exit the REPL
 
-* `-t` or `--tokens` — Print tokens only (lexical analysis):
+## File Structure
 
-```bash
-zyra -t <file.zy>
+```
+tokenizer.py           - Lexical analysis
+ast_nodes_enhanced.py  - AST node definitions
+parser_enhanced.py     - Syntax analysis
+interpreter_enhanced.py - Runtime execution
+main.py                - Main entry point & REPL
+examples.lang          - Example programs
 ```
 
-* `-a` or `--ast` — Print the AST only (parsed structure):
+## Language Philosophy
 
-```bash
-zyra -a <file.zy>
+This language is designed with the following principles:
+
+1. **Safety**: Strong typing with overflow protection for integer types
+2. **Expressiveness**: Modern syntax with pattern matching and functional features
+3. **Performance**: Efficient integer operations with explicit bit sizes
+4. **Clarity**: Clear, readable syntax inspired by modern languages
+5. **Practicality**: Built-in support for common programming patterns
+
+## Examples
+
+### Hello World
+```javascript
+print("Hello, World!")
 ```
 
-* `-d` or `--debug` — Enable debug mode during execution:
-
-```bash
-zyra -d <file.zy>
+### FizzBuzz
+```javascript
+for i in 1..=100 {
+    if (i % 15 == 0) {
+        print("FizzBuzz")
+    } elif (i % 3 == 0) {
+        print("Fizz")
+    } elif (i % 5 == 0) {
+        print("Buzz")
+    } else {
+        print(i)
+    }
+}
 ```
 
-Flags can be combined with the filename. For example, to run in debug mode:
+### Factorial
+```javascript
+fnc factorial(n) {
+    if (n <= 1) {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
 
-```bash
-zyra -d <file.zy>
+print(factorial(5))  // 120
 ```
 
----
+### Struct Example
+```javascript
+struct Rectangle {
+    width: int32,
+    height: int32
+}
 
-## Notes
+fnc area(rect) {
+    return rect.width * rect.height
+}
 
-* Zyra emphasizes **clarity and flexibility**.
-* Types are optional but encouraged for readability.
-* Supports rich expressions, indexing, and nested literals.
-* Designed to be **extensible**, allowing future enhancements like modules, classes, and asynchronous programming.
+dec r = Rectangle { width: 10, height: 20 }
+print(area(r))  // 200
+```
 
----
+## Future Enhancements
+
+- [ ] Module system with imports/exports
+- [ ] Traits and implementations
+- [ ] Generic types
+- [ ] Compile to bytecode
+- [ ] Standard library
+- [ ] Package manager
+- [ ] Better error messages with stack traces
+- [ ] Debugger support
+- [ ] IDE integration
+- [ ] Optimizing compiler
+- [ ] Concurrency primitives
+- [ ] Memory management options
+
+## Comparison with Vale
+
+While inspired by Vale's philosophy, this language focuses on:
+- Simpler initial implementation
+- Python-based runtime for easy experimentation
+- Gradual type system
+- Pattern matching as a first-class feature
+- Flexible integer types for system programming
 
 ## Contributing
 
-Contributions are welcome! Some areas for expansion:
+This is an experimental language designed for learning and exploration. Contributions, suggestions, and feedback are welcome!
 
-* Adding **type checking and inference**
-* Implementing **standard library functions**
-* Improving **error messages and debugging tools**
-* Adding **module and import support**
+## License
+
+MIT License - Feel free to use, modify, and distribute.
 
 ---

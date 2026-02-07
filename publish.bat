@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=uint256 & int256"
+if "%MSG%"=="" set "MSG=MASSIVE UPGRADE like giant mushroom typa shit"
 
 git status
 
