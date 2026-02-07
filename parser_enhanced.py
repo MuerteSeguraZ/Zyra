@@ -85,6 +85,8 @@ class Parser:
             self.consume("KEYWORD", "throw")
             expr = self.expr()
             return ThrowStatement(expr)
+        elif keyword == "typedef":
+            return self.typedef_struct()
         elif keyword == "struct":
             return self.struct_def()
         elif keyword == "enum":
@@ -384,6 +386,32 @@ class Parser:
             finally_block = self.block()
 
         return TryCatchStatement(try_block, catch_clauses, finally_block)
+    
+    def typedef_struct(self):
+        """parse typedef struct definition"""
+        self.consume("KEYWORD", "typedef")
+        self.consume("KEYWORD", "struct")
+        name = self.consume("ID")[1]
+        self.consume("LBRACE")
+
+        fields = []
+        while self.peek()[0] != "RBRACE":
+            field_name = self.consume("ID")[1]
+            self.consume("COLON")
+            field_type = self.consume("ID")[1]
+
+            default_value = None
+            if self.peek()[1] == "=":
+                self.consume("OP", "=")
+                default_value = self.expr()
+
+            fields.append((field_name, field_type, default_value))
+
+            if self.peek()[0] == "COMMA":
+                self.consume("COMMA")
+            
+        self.consume("RBRACE")
+        return TypedefStruct(name, fields)
 
     def struct_def(self):
         """Parse struct definition"""

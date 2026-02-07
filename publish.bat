@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=MASSIVE UPGRADE like giant mushroom typa shit"
+if "%MSG%"=="" set "MSG=add support for typedef structs"
 
 git status
 

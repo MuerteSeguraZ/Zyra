@@ -477,13 +477,30 @@ class Interpreter:
         elif isinstance(node, StructDef):
             self.env.structs[node.name] = node
             return None
-
+        
+        elif isinstance(node, TypedefStruct):
+            self.env.structs[node.name] = node
+            return None
+        
         elif isinstance(node, StructLiteral):
-            # Get struct definition if it exists
-            if node.struct_name in self.env.structs:
-                struct_def = self.env.structs[node.struct_name]
+            # Get struct definition if it exists - check parent environments too
+            struct_def = None
+            current_env = self.env
+            while current_env:
+                if node.struct_name in current_env.structs:
+                    struct_def = current_env.structs[node.struct_name]
+                    break
+                current_env = current_env.parent
+    
+            if struct_def:
                 fields = {}
-                
+        
+                # First, apply all default values
+                for field_name, field_type, default_value in struct_def.fields:
+                    if default_value is not None:
+                        fields[field_name] = self.eval(default_value)
+        
+                # Then, override with provided values
                 if isinstance(node.fields, dict):
                     for name, value_expr in node.fields.items():
                         fields[name] = self.eval(value_expr)
@@ -496,7 +513,7 @@ class Interpreter:
                 return Struct(node.struct_name, fields)
             else:
                 raise RuntimeError(f"Undefined struct: {node.struct_name}")
-
+            
         elif isinstance(node, EnumDef):
             self.env.enums[node.name] = node
             # Create constructor functions for each variant
@@ -513,7 +530,7 @@ class Interpreter:
         elif isinstance(node, TypeAlias):
             self.env.types[node.name] = node.type_expr
             return None
-
+        
         # ===== Member Access =====
         elif isinstance(node, IndexAccess):
             collection = self.eval(node.collection)
@@ -533,22 +550,22 @@ class Interpreter:
                 return obj.get(node.member)
             else:
                 raise RuntimeError(f"Cannot access member '{node.member}' of {type(obj).__name__}")
-
+        
         elif isinstance(node, SliceAccess):
             collection = self.eval(node.collection)
             start = self.eval(node.start) if node.start else None
             end = self.eval(node.end) if node.end else None
             step = self.eval(node.step) if node.step else None
             return collection[start:end:step]
-
+        
         # ===== Imports =====
         elif isinstance(node, ImportStatement):
             # Simplified - just acknowledge the import
             return None
-
+        
         else:
             raise RuntimeError(f"Unknown node type: {type(node).__name__}")
-
+        
     def eval_binary_op(self, node):
         """Evaluate binary operators"""
         left = self.eval(node.left)

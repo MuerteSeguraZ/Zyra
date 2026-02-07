@@ -82,7 +82,8 @@ def tokenize(code, track_position=True):
         "try", "catch", "throw", "match", "async", "await", "yield",
         "import", "from", "as", "export", "const", "mut", "ref",
         "type", "struct", "enum", "trait", "impl", "pub", "priv",
-        "static", "self", "super", "where", "unsafe", "macro", "finally"
+        "static", "self", "super", "where", "unsafe", "macro", "finally",
+        "typedef"
     }
     
     regex = "|".join(f"(?P<{name}>{pattern})" for name, pattern in TOKEN_SPEC)

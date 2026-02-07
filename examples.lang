@@ -433,4 +433,149 @@ try {
     print("Error: " + e)
 }
 
+// ========================================
+// Example 21: Typedef Structs
+// ========================================
+
+print("\n=== Typedef Struct Tests ===")
+
+// Basic typedef struct
+typedef struct Point {
+    x: int32,
+    y: int32
+}
+
+dec p1 = Point { x: 10, y: 20 }
+dec p2 = Point { x: 5, y: 15 }
+
+print(p1.x)  // 10
+print(p1.y)  // 20
+print(p2.x)  // 5
+print(p2.y)  // 15
+
+// Typedef struct with default values
+typedef struct Color {
+    r: uint8 = 0,
+    g: uint8 = 0,
+    b: uint8 = 0,
+    a: uint8 = 255
+}
+
+dec red = Color { r: 255 }
+dec green = Color { g: 255, a: 128 }
+dec blue = Color { b: 255 }
+
+print(red.r)    // 255
+print(red.a)    // 255 (default)
+print(green.g)  // 255
+print(green.a)  // 128
+
+// Typedef struct for a more complex type
+typedef struct Vector3D {
+    x: int32,
+    y: int32,
+    z: int32
+}
+
+fnc add_vectors(Vector3D v1, Vector3D v2) {
+    return Vector3D {
+        x: v1.x + v2.x,
+        y: v1.y + v2.y,
+        z: v1.z + v2.z
+    }
+}
+
+dec v1 = Vector3D { x: 1, y: 2, z: 3 }
+dec v2 = Vector3D { x: 4, y: 5, z: 6 }
+dec v3 = add_vectors(v1, v2)
+
+print(v3.x)  // 5
+print(v3.y)  // 7
+print(v3.z)  // 9
+
+// Typedef struct for configuration
+typedef struct Config {
+    host: String = "localhost",
+    port: int32 = 8080,
+    debug: bool = false
+}
+
+dec default_config = Config {}
+dec custom_config = Config { host: "0.0.0.0", port: 3000, debug: true }
+
+// Typedef struct for a Person record
+typedef struct Person {
+    name: String,
+    age: int32,
+    email: String = "unknown@example.com"
+}
+
+dec alice = Person { name: "Alice", age: 30 }
+dec bob = Person { name: "Bob", age: 25, email: "bob@example.com" }
+
+print(alice.name)   // Alice
+print(alice.email)  // unknown@example.com (default)
+print(bob.email)    // bob@example.com
+
+// Using typedef structs in arrays
+dec points = [
+    Point { x: 0, y: 0 },
+    Point { x: 10, y: 10 },
+    Point { x: 20, y: 20 }
+]
+
+print(points[0].x)  // 0
+print(points[1].x)  // 10
+print(points[2].x)  // 20
+
+// Typedef struct for rectangle using Points
+typedef struct Rectangle {
+    top_left: Point,
+    bottom_right: Point
+}
+
+// Note: This would require nested struct support in the interpreter
+// dec rect = Rectangle {
+//     top_left: Point { x: 0, y: 100 },
+//     bottom_right: Point { x: 100, y: 0 }
+// }
+
+// Typedef struct with various types
+typedef struct Employee {
+    id: uint32,
+    name: String,
+    salary: int64,
+    active: bool = true
+}
+
+dec emp1 = Employee { id: uint32(1001), name: "John", salary: int64(75000) }
+dec emp2 = Employee { id: uint32(1002), name: "Jane", salary: int64(85000), active: false }
+
+print(emp1.id)      // 1001
+print(emp1.active)  // true (default)
+print(emp2.active)  // false
+
+// Function that returns a typedef struct
+fnc create_point(x_val, y_val) {
+    return Point { x: x_val, y: y_val }
+}
+
+dec p3 = create_point(100, 200)
+print(p3.x)  // 100
+print(p3.y)  // 200
+
+// Calculate distance between two points
+fnc distance(Point p1, Point p2) {
+    dec dx = p2.x - p1.x
+    dec dy = p2.y - p1.y
+    return (dx * dx + dy * dy)  // Squared distance (no sqrt yet)
+}
+
+dec origin = Point { x: 0, y: 0 }
+dec point = Point { x: 3, y: 4 }
+dec dist_sq = distance(origin, point)
+print(dist_sq)  // 25 (3² + 4² = 9 + 16 = 25)
+
+print("\n=== Typedef Struct Tests Completed! ===")
+
 print("\n=== All examples completed! ===")

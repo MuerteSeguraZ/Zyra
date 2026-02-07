@@ -313,6 +313,13 @@ class StructDef(Node):
         self.name = name
         self.fields = fields  # list of (field_name, type, default_value)
 
+class TypedefStruct(Node):
+    """typedef struct Point { x: int32, y: int32 }"""
+    def __init__(self, name, fields):
+        super().__init__()
+        self.name = name
+        self.fields = fields
+
 class EnumDef(Node):
     """enum Color { Red, Green, Blue }"""
     def __init__(self, name, variants):
