@@ -1,6 +1,7 @@
 from ast_nodes_enhanced import *
 from decimal import Decimal
 import operator
+import os
 
 # ===== Runtime Exceptions =====
 
@@ -84,6 +85,15 @@ class Range:
             return iter(range(self.start, self.end + 1))
         return iter(range(self.start, self.end))
 
+class Module:
+    """Represents an imported module"""
+    def __init__(self, name, env):
+        self.name = name
+        self.env = env  # The module's environment
+    
+    def __repr__(self):
+        return f"Module({self.name})"
+
 # ===== Environment =====
 
 class Environment:
@@ -92,7 +102,7 @@ class Environment:
         self.vars = {}  # name -> (value, type, is_const, is_mut)
         self.parent = parent
         self.structs = {}  # struct definitions
-        self.unions = {}   # union definitions - INITIALIZE THIS!
+        self.unions = {}   # union definitions
         self.enums = {}    # enum definitions
         self.types = {}    # type aliases
 
@@ -173,11 +183,13 @@ class Environment:
 # ===== Interpreter =====
 
 class Interpreter:
-    """Enhanced interpreter with better error handling and features"""
+    """Enhanced interpreter with import support"""
     def __init__(self):
         self.global_env = Environment()
         self.env = self.global_env
         self.setup_builtins()
+        self.modules = {}  # Cache for loaded modules: filepath -> Module
+        self.current_file_dir = os.getcwd()  # Track current file directory for relative imports
 
     def setup_builtins(self):
         """Setup built-in functions and constants"""
@@ -194,6 +206,66 @@ class Interpreter:
         self.global_env.define("min", min, is_const=True)
         self.global_env.define("max", max, is_const=True)
         self.global_env.define("sum", sum, is_const=True)
+
+    def load_module(self, filepath):
+        """Load a module from a file and return its environment"""
+        # Resolve relative path
+        if not os.path.isabs(filepath):
+            filepath = os.path.join(self.current_file_dir, filepath)
+        
+        # Normalize path
+        filepath = os.path.normpath(filepath)
+        
+        # Check cache
+        if filepath in self.modules:
+            return self.modules[filepath]
+        
+        # Check if file exists
+        if not os.path.exists(filepath):
+            raise RuntimeError(f"Module file not found: {filepath}")
+        
+        # Read file
+        try:
+            with open(filepath, 'r') as f:
+                code = f.read()
+        except Exception as e:
+            raise RuntimeError(f"Error reading module {filepath}: {e}")
+        
+        # Parse and execute in new environment
+        from lexer import tokenize
+        from parser_enhanced import Parser
+        
+        try:
+            tokens = tokenize(code)
+            parser = Parser(tokens)
+            ast = parser.parse()
+        except Exception as e:
+            raise RuntimeError(f"Error parsing module {filepath}: {e}")
+        
+        # Create new environment for module
+        module_env = Environment(parent=self.global_env)
+        
+        # Save current state
+        prev_env = self.env
+        prev_dir = self.current_file_dir
+        
+        # Set module's directory as current for nested imports
+        self.current_file_dir = os.path.dirname(filepath)
+        self.env = module_env
+        
+        try:
+            # Execute module
+            self.eval(ast)
+        finally:
+            # Restore state
+            self.env = prev_env
+            self.current_file_dir = prev_dir
+        
+        # Cache module
+        module = Module(filepath, module_env)
+        self.modules[filepath] = module
+        
+        return module
 
     def eval(self, node):
         """Evaluate an AST node"""
@@ -494,12 +566,12 @@ class Interpreter:
             return None
         
         elif isinstance(node, UnionDef):
-            # Store union definition - make sure unions dict exists
+            # Store union definition
             self.env.unions[node.name] = node
             return None
         
         elif isinstance(node, TypedefUnion):
-            # Store typedef union definition - make sure unions dict exists
+            # Store typedef union definition
             self.env.unions[node.name] = node
             return None
         
@@ -592,6 +664,12 @@ class Interpreter:
                     return obj.value
                 else:
                     raise RuntimeError(f"Union field '{node.member}' is not active (active field is '{obj.active_field}')")
+            elif isinstance(obj, Module):
+                # Access module members
+                try:
+                    return obj.env.get(node.member)
+                except RuntimeError:
+                    raise RuntimeError(f"Module '{obj.name}' has no member '{node.member}'")
             elif isinstance(obj, dict):
                 return obj.get(node.member)
             else:
@@ -606,11 +684,71 @@ class Interpreter:
         
         # ===== Imports =====
         elif isinstance(node, ImportStatement):
-            # Simplified - just acknowledge the import
-            return None
+            return self.handle_import(node)
         
         else:
             raise RuntimeError(f"Unknown node type: {type(node).__name__}")
+    
+    def handle_import(self, node):
+        """Handle import statements"""
+        # import 'file.zy' - imports everything
+        if node.names is None and node.alias is None:
+            module = self.load_module(node.module)
+            # Import all non-private variables from module
+            for name, (value, var_type, is_const, is_mut) in module.env.vars.items():
+                if not name.startswith('_'):  # Skip private variables
+                    self.env.define(name, value, var_type, is_const, is_mut)
+            # Import structs, enums, unions
+            self.env.structs.update(module.env.structs)
+            self.env.enums.update(module.env.enums)
+            self.env.unions.update(module.env.unions)
+            self.env.types.update(module.env.types)
+            return None
+        
+        # from 'file.zy' import name1, name2 - imports specific items
+        elif node.names is not None:
+            module = self.load_module(node.module)
+            for name in node.names:
+                # Try to get variable
+                try:
+                    value = module.env.get(name)
+                    var_type = module.env.get_type(name)
+                    is_const = module.env.is_const(name)
+                    self.env.define(name, value, var_type, is_const)
+                    continue
+                except RuntimeError:
+                    pass
+                
+                # Try to get struct
+                if name in module.env.structs:
+                    self.env.structs[name] = module.env.structs[name]
+                    continue
+                
+                # Try to get enum
+                if name in module.env.enums:
+                    self.env.enums[name] = module.env.enums[name]
+                    continue
+                
+                # Try to get union
+                if name in module.env.unions:
+                    self.env.unions[name] = module.env.unions[name]
+                    continue
+                
+                # Try to get type alias
+                if name in module.env.types:
+                    self.env.types[name] = module.env.types[name]
+                    continue
+                
+                raise RuntimeError(f"Module '{node.module}' has no export named '{name}'")
+            return None
+        
+        # import 'file.zy' as alias - imports as module object
+        elif node.alias is not None:
+            module = self.load_module(node.module)
+            self.env.define(node.alias, module, is_const=True)
+            return None
+        
+        return None
         
     def eval_binary_op(self, node):
         """Evaluate binary operators"""

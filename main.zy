@@ -1,0 +1,27 @@
+// main.zy - Example program using imports
+
+// Import everything from math.zy
+import "zytests/math.zy"
+
+// Import specific functions from utils.zy
+from "zytests/utils.zy" import greet, is_even, Point, distance
+
+// Use imported functions
+print("Testing math operations:")
+print(add(5, 3))
+print(multiply(4, 7))
+print(power(2, 8))
+print("PI = " + str(PI))
+
+print("\nTesting factorial:")
+print(factorial(5))
+
+print("\nTesting utils:")
+greet("Alice")
+print(is_even(42))
+print(is_even(43))
+
+print("\nTesting Point struct:")
+dec p1 = Point { x: 0, y: 0 }
+dec p2 = Point { x: 3, y: 4 }
+print("Distance: " + str(distance(p1, p2)))

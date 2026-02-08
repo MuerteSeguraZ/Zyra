@@ -100,6 +100,8 @@ class Parser:
             return self.enum_def()
         elif keyword == "type":
             return self.type_alias()
+        elif keyword == "from":
+            return self.from_import_stmt()
         elif keyword == "import":
             return self.import_stmt()
         elif keyword == "yield":
@@ -119,7 +121,71 @@ class Parser:
             stmts.append(self.statement())
         self.consume("RBRACE")
         return stmts
+    
+    def import_stmt(self):
+        """Parse import statement with file path support"""
+        self.consume("KEYWORD", "import")
+        
+        # from 'file.zy' import name1, name2
+        if self.peek()[1] == "from":
+            raise ParseError("Syntax error: use 'from' after module path")
+        
+        # Check if next token is a string (file path)
+        tok = self.peek()
+        
+        if tok[0] == "STRING":
+            # import 'file.zy' [as alias]
+            filepath = self.consume("STRING")[1].strip('"\'')
+            
+            alias = None
+            if self.peek()[1] == "as":
+                self.consume("KEYWORD", "as")
+                alias = self.consume("ID")[1]
+            
+            return ImportStatement(filepath, names=None, alias=alias)
+        
+        elif tok[0] == "ID":
+            # Legacy support: import module or from module import x
+            module = self.consume("ID")[1]
+            
+            # Check for 'from' after module name (from module import x)
+            if self.peek()[1] == "import":
+                # This is actually: import module; we'll treat module as a file
+                return ImportStatement(module + ".zy", names=None, alias=None)
+            
+            alias = None
+            if self.peek()[1] == "as":
+                self.consume("KEYWORD", "as")
+                alias = self.consume("ID")[1]
+            
+            return ImportStatement(module + ".zy", names=None, alias=alias)
+        
+        else:
+            raise ParseError(f"Expected string or identifier after 'import', got {tok}")
 
+    def from_import_stmt(self):
+        """Parse 'from X import Y' statement"""
+        self.consume("KEYWORD", "from")
+    
+        tok = self.peek()
+        if tok[0] == "STRING":
+            filepath = self.consume("STRING")[1].strip('"\'')
+        elif tok[0] == "ID":
+            filepath = self.consume("ID")[1] + ".zy"
+        else:
+            raise ParseError(f"Expected string or identifier after 'from', got {tok}")
+    
+        self.consume("KEYWORD", "import")
+    
+        names = []
+        while True:
+            names.append(self.consume("ID")[1])
+            if self.peek()[0] != "COMMA":
+                break
+            self.consume("COMMA")
+    
+        return ImportStatement(filepath, names=names, alias=None)
+    
     def var_decl(self):
         """Parse variable declaration"""
         self.consume("KEYWORD", "dec")
@@ -615,29 +681,35 @@ class Parser:
         return TypeAlias(name, type_expr)
 
     def import_stmt(self):
-        """Parse import statement"""
+        """Parse import statement with file path support"""
         self.consume("KEYWORD", "import")
+    
+        tok = self.peek()
+    
+        if tok[0] == "STRING":
+            # import "file.zy" [as alias]
+            filepath = self.consume("STRING")[1].strip('"\'')
         
-        # from module import name
-        if self.peek()[1] == "from":
-            self.consume("KEYWORD", "from")
-            module = self.consume("ID")[1]
-            self.consume("KEYWORD", "import")
-            names = []
-            while True:
-                names.append(self.consume("ID")[1])
-                if self.peek()[0] != "COMMA":
-                    break
-                self.consume("COMMA")
-            return ImportStatement(module, names)
-        # import module [as alias]
-        else:
-            module = self.consume("ID")[1]
             alias = None
             if self.peek()[1] == "as":
                 self.consume("KEYWORD", "as")
                 alias = self.consume("ID")[1]
-            return ImportStatement(module, alias=alias)
+        
+            return ImportStatement(filepath, names=None, alias=alias)
+
+        elif tok[0] == "ID":
+            # Legacy: import module (assumes .zy extension)
+            module = self.consume("ID")[1]
+
+            alias = None
+            if self.peek()[1] == "as":
+                self.consume("KEYWORD", "as")
+                alias = self.consume("ID")[1]
+
+            return ImportStatement(module + ".zy", names=None, alias=alias)
+        
+        else:
+            raise ParseError(f"Expected string or identifier after 'import', got {tok}")
 
     def function_def(self):
         """Parse function definition with enhanced features"""

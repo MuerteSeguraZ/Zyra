@@ -1,0 +1,33 @@
+// math.zy - Example math module
+
+fnc add(x, y) {
+    return x + y
+}
+
+fnc subtract(x, y) {
+    return x - y
+}
+
+fnc multiply(x, y) {
+    return x * y
+}
+
+fnc divide(x, y) {
+    return x / y
+}
+
+fnc power(base, exponent) {
+    return base ** exponent
+}
+
+// Mathematical constants
+const PI = 3.14159265359
+const E = 2.71828182846
+
+// Factorial function
+fnc factorial(n) {
+    if (n <= 1) {
+        return 1
+    }
+    return n * factorial(n - 1)
+}

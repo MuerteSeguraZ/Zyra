@@ -513,7 +513,7 @@ dec int8 y = int8(-200)   // Wraps with two's complement
 
 ## Future Enhancements
 
-- [ ] Module system with imports/exports
+- [X] Module system with imports
 - [ ] Traits and implementations
 - [ ] Generic types
 - [ ] Enum variant destructuring in match
@@ -540,14 +540,9 @@ While inspired by Vale's philosophy, this language focuses on:
 
 ## Recent Updates
 
-### v0.2.0
-- ✅ Added `typedef struct` with default field values
-- ✅ Added unions (`union` and `typedef union`)
-- ✅ Added anonymous unions inside structs
-- ✅ Union field access safety enforcement
-- ✅ Support for keywords as identifiers (field names, member names, etc.)
-- ✅ Enhanced parser to handle keyword tokens in identifier contexts
-- ✅ Improved error handling for union operations
+### v0.3.0
+- ✅ Added import support
+- ✅ Import supports relative paths
 
 ## Contributing
 

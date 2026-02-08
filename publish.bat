@@ -3,7 +3,7 @@
 git add --all
 
 set "MSG=%~1"
-if "%MSG%"=="" set "MSG=UNIONS!!!"
+if "%MSG%"=="" set "MSG=import files"
 
 git status
 
