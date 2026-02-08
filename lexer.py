@@ -83,7 +83,7 @@ def tokenize(code, track_position=True):
         "import", "from", "as", "export", "const", "mut", "ref",
         "type", "struct", "enum", "trait", "impl", "pub", "priv",
         "static", "self", "super", "where", "unsafe", "macro", "finally",
-        "typedef"
+        "typedef", "union"
     }
     
     regex = "|".join(f"(?P<{name}>{pattern})" for name, pattern in TOKEN_SPEC)

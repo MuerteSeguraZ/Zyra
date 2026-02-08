@@ -86,6 +86,13 @@ class Parser:
             expr = self.expr()
             return ThrowStatement(expr)
         elif keyword == "typedef":
+            next_tok = self.peek(1)  # ← Look at the NEXT token, not current!
+            if next_tok[1] == "union":
+                return self.typedef_union()
+            else:
+                return self.typedef_struct()
+        elif keyword == "union":
+            return self.union_def()
             return self.typedef_struct()
         elif keyword == "struct":
             return self.struct_def()
@@ -388,53 +395,186 @@ class Parser:
         return TryCatchStatement(try_block, catch_clauses, finally_block)
     
     def typedef_struct(self):
-        """parse typedef struct definition"""
+        """Parse typedef struct definition"""
         self.consume("KEYWORD", "typedef")
         self.consume("KEYWORD", "struct")
+        name = self.consume("ID")[1]
+        self.consume("LBRACE")
+    
+        fields = []
+        while self.peek()[0] != "RBRACE":
+            # Check for anonymous union FIRST before trying to parse field name
+            if self.peek()[0] == "KEYWORD" and self.peek()[1] == "union":
+                self.consume("KEYWORD", "union")
+                self.consume("LBRACE")
+                union_fields = []
+                while self.peek()[0] != "RBRACE":
+                    # Field name can be ID or KEYWORD (e.g., "type")
+                    tok = self.peek()
+                    if tok[0] in ("ID", "KEYWORD"):
+                        union_field_name = self.consume()[1]
+                    else:
+                        raise ParseError(f"Expected field name, got {tok}")
+                    self.consume("COLON")
+                    # Type can be ID or KEYWORD (e.g., int32, float32)
+                    tok = self.peek()
+                    if tok[0] in ("ID", "KEYWORD"):
+                        union_field_type = self.consume()[1]
+                    else:
+                        raise ParseError(f"Expected type name, got {tok}")
+                    union_fields.append((union_field_name, union_field_type))
+                    if self.peek()[0] == "COMMA":
+                        self.consume("COMMA")
+                self.consume("RBRACE")
+                # Add anonymous union as a special field
+                fields.append(("__union__", AnonymousUnion(union_fields), None))
+            else:
+                # Regular field - field name can be ID or KEYWORD (e.g., "type")
+                tok = self.peek()
+                if tok[0] in ("ID", "KEYWORD"):
+                    field_name = self.consume()[1]
+                else:
+                    raise ParseError(f"Expected field name, got {tok}")
+                self.consume("COLON")
+                # Type can be ID or KEYWORD (e.g., uint8, String, int32)
+                tok = self.peek()
+                if tok[0] in ("ID", "KEYWORD"):
+                    field_type = self.consume()[1]
+                else:
+                    raise ParseError(f"Expected type name, got {tok}")
+
+                default_value = None
+                if self.peek()[1] == "=":
+                    self.consume("OP", "=")
+                    default_value = self.expr()
+
+                fields.append((field_name, field_type, default_value))
+
+            if self.peek()[0] == "COMMA":
+                self.consume("COMMA")
+
+        self.consume("RBRACE")
+        return TypedefStruct(name, fields)
+    
+    def union_def(self):
+        """Parse union definition"""
+        self.consume("KEYWORD", "union")
+        name = self.consume("ID")[1]
+        self.consume("LBRACE")
+    
+        fields = []
+        while self.peek()[0] != "RBRACE":
+            # Field name can be ID or KEYWORD
+            tok = self.peek()
+            if tok[0] in ("ID", "KEYWORD"):
+                field_name = self.consume()[1]
+            else:
+                raise ParseError(f"Expected field name, got {tok}")
+            self.consume("COLON")
+            # Type can be ID or KEYWORD
+            tok = self.peek()
+            if tok[0] in ("ID", "KEYWORD"):
+                field_type = self.consume()[1]
+            else:
+                raise ParseError(f"Expected type name, got {tok}")
+        
+            fields.append((field_name, field_type))
+        
+            if self.peek()[0] == "COMMA":
+                self.consume("COMMA")
+
+        self.consume("RBRACE")
+        return UnionDef(name, fields)
+    
+    def typedef_union(self):
+        """Parse typedef union definition"""
+        self.consume("KEYWORD", "typedef")
+        self.consume("KEYWORD", "union")
         name = self.consume("ID")[1]
         self.consume("LBRACE")
 
         fields = []
         while self.peek()[0] != "RBRACE":
-            field_name = self.consume("ID")[1]
+            # Field name can be ID or KEYWORD
+            tok = self.peek()
+            if tok[0] in ("ID", "KEYWORD"):
+                field_name = self.consume()[1]
+            else:
+                raise ParseError(f"Expected field name, got {tok}")
             self.consume("COLON")
-            field_type = self.consume("ID")[1]
+            # Type can be ID or KEYWORD
+            tok = self.peek()
+            if tok[0] in ("ID", "KEYWORD"):
+                field_type = self.consume()[1]
+            else:
+                raise ParseError(f"Expected type name, got {tok}")
 
-            default_value = None
-            if self.peek()[1] == "=":
-                self.consume("OP", "=")
-                default_value = self.expr()
-
-            fields.append((field_name, field_type, default_value))
+            fields.append((field_name, field_type))
 
             if self.peek()[0] == "COMMA":
                 self.consume("COMMA")
-            
+
         self.consume("RBRACE")
-        return TypedefStruct(name, fields)
+        return TypedefUnion(name, fields)
 
     def struct_def(self):
         """Parse struct definition"""
         self.consume("KEYWORD", "struct")
         name = self.consume("ID")[1]
         self.consume("LBRACE")
-        
+    
         fields = []
         while self.peek()[0] != "RBRACE":
-            field_name = self.consume("ID")[1]
-            self.consume("COLON")
-            field_type = self.consume("ID")[1]
-            
-            default_value = None
-            if self.peek()[1] == "=":
-                self.consume("OP", "=")
-                default_value = self.expr()
-            
-            fields.append((field_name, field_type, default_value))
-            
-            if self.peek()[0] == "COMMA":
-                self.consume("COMMA")
+            # Check for anonymous union
+            if self.peek()[1] == "union":
+                self.consume("KEYWORD", "union")
+                self.consume("LBRACE")
+                union_fields = []
+                while self.peek()[0] != "RBRACE":
+                    # Field name can be ID or KEYWORD
+                    tok = self.peek()
+                    if tok[0] in ("ID", "KEYWORD"):
+                        union_field_name = self.consume()[1]
+                    else:
+                        raise ParseError(f"Expected field name, got {tok}")
+                    self.consume("COLON")
+                    # Type can be ID or KEYWORD
+                    tok = self.peek()
+                    if tok[0] in ("ID", "KEYWORD"):
+                        union_field_type = self.consume()[1]
+                    else:
+                        raise ParseError(f"Expected type name, got {tok}")
+                    union_fields.append((union_field_name, union_field_type))
+                    if self.peek()[0] == "COMMA":
+                        self.consume("COMMA")
+                self.consume("RBRACE")
+                # Add anonymous union as a special field
+                fields.append(("__union__", AnonymousUnion(union_fields), None))
+            else:
+                # Regular field - field name can be ID or KEYWORD
+                tok = self.peek()
+                if tok[0] in ("ID", "KEYWORD"):
+                    field_name = self.consume()[1]
+                else:
+                    raise ParseError(f"Expected field name, got {tok}")
+                self.consume("COLON")
+                # Type can be ID or KEYWORD
+                tok = self.peek()
+                if tok[0] in ("ID", "KEYWORD"):
+                    field_type = self.consume()[1]
+                else:
+                    raise ParseError(f"Expected type name, got {tok}")
+
+                default_value = None
+                if self.peek()[1] == "=":
+                    self.consume("OP", "=")
+                    default_value = self.expr()
+
+                fields.append((field_name, field_type, default_value))
         
+            if self.peek()[0] == "COMMA":
+             self.consume("COMMA")
+    
         self.consume("RBRACE")
         return StructDef(name, fields)
 
@@ -748,7 +888,12 @@ class Parser:
             # Member access: obj.field
             if tok[0] == "DOT":
                 self.consume("DOT")
-                member = self.consume("ID")[1]
+                # Member name can be ID or KEYWORD (e.g., "type")
+                tok = self.peek()
+                if tok[0] in ("ID", "KEYWORD"):
+                    member = self.consume()[1]
+                else:
+                    raise ParseError(f"Expected member name, got {tok}")
                 
                 # Method call
                 if self.peek()[0] == "LPAREN":
@@ -931,9 +1076,9 @@ class Parser:
                 kwargs = {}
                 
                 while self.peek()[0] != "RPAREN":
-                    # Named argument: name = value
-                    if self.peek()[0] == "ID" and self.peek(1)[1] == "=":
-                        arg_name = self.consume("ID")[1]
+                    # Named argument: name = value (name can be ID or KEYWORD)
+                    if self.peek()[0] in ("ID", "KEYWORD") and self.peek(1)[1] == "=":
+                        arg_name = self.consume()[1]
                         self.consume("OP", "=")
                         kwargs[arg_name] = self.expr()
                     else:
@@ -950,7 +1095,12 @@ class Parser:
                 self.consume("LBRACE")
                 fields = {}
                 while self.peek()[0] != "RBRACE":
-                    field_name = self.consume("ID")[1]
+                    # Field name can be ID or KEYWORD (e.g., "type")
+                    tok = self.peek()
+                    if tok[0] in ("ID", "KEYWORD"):
+                        field_name = self.consume()[1]
+                    else:
+                        raise ParseError(f"Expected field name, got {tok}")
                     self.consume("COLON")
                     field_value = self.expr()
                     fields[field_name] = field_value

@@ -49,6 +49,16 @@ class Struct:
     
     def __repr__(self):
         return f"{self.struct_name} {self.fields}"
+    
+class Union:
+    """Runtime union instance - only one field is active at a time"""
+    def __init__(self, union_name, active_field, value):
+        self.union_name = union_name
+        self.active_field = active_field  # which field is currently set
+        self.value = value  # the value of the active field
+    
+    def __repr__(self):
+        return f"{self.union_name}::{self.active_field} = {self.value}"
 
 class Enum:
     """Runtime enum variant"""
@@ -82,6 +92,7 @@ class Environment:
         self.vars = {}  # name -> (value, type, is_const, is_mut)
         self.parent = parent
         self.structs = {}  # struct definitions
+        self.unions = {}   # union definitions - INITIALIZE THIS!
         self.enums = {}    # enum definitions
         self.types = {}    # type aliases
 
@@ -482,24 +493,53 @@ class Interpreter:
             self.env.structs[node.name] = node
             return None
         
+        elif isinstance(node, UnionDef):
+            # Store union definition - make sure unions dict exists
+            self.env.unions[node.name] = node
+            return None
+        
+        elif isinstance(node, TypedefUnion):
+            # Store typedef union definition - make sure unions dict exists
+            self.env.unions[node.name] = node
+            return None
+        
         elif isinstance(node, StructLiteral):
-            # Get struct definition if it exists - check parent environments too
-            struct_def = None
+            # FIRST check if it's a union before checking struct
             current_env = self.env
+            while current_env:
+                if node.struct_name in current_env.unions:
+                    # It's a union! Create Union object
+                    union_def = current_env.unions[node.struct_name]
+                    # Union can only have one field set
+                    if isinstance(node.fields, dict) and len(node.fields) == 1:
+                        field_name, value_expr = list(node.fields.items())[0]
+                        return Union(node.struct_name, field_name, self.eval(value_expr))
+                    else:
+                        raise RuntimeError(f"Union '{node.struct_name}' can only be initialized with one field")
+                current_env = current_env.parent
+            
+            # Not a union, check if it's a struct
+            current_env = self.env
+            struct_def = None
             while current_env:
                 if node.struct_name in current_env.structs:
                     struct_def = current_env.structs[node.struct_name]
                     break
                 current_env = current_env.parent
-    
+            
             if struct_def:
                 fields = {}
-        
+                
                 # First, apply all default values
-                for field_name, field_type, default_value in struct_def.fields:
-                    if default_value is not None:
-                        fields[field_name] = self.eval(default_value)
-        
+                for field_info in struct_def.fields:
+                    if len(field_info) == 3:  # Regular field
+                        field_name, field_type, default_value = field_info
+                        if default_value is not None:
+                            fields[field_name] = self.eval(default_value)
+                    elif len(field_info) == 2 and field_info[0] == "__union__":
+                        # Anonymous union - don't set defaults
+                        pass
+                
                 # Then, override with provided values
                 if isinstance(node.fields, dict):
                     for name, value_expr in node.fields.items():
@@ -512,8 +552,8 @@ class Interpreter:
                 
                 return Struct(node.struct_name, fields)
             else:
-                raise RuntimeError(f"Undefined struct: {node.struct_name}")
-            
+                raise RuntimeError(f"Undefined struct or union: {node.struct_name}")
+                    
         elif isinstance(node, EnumDef):
             self.env.enums[node.name] = node
             # Create constructor functions for each variant
@@ -523,10 +563,10 @@ class Interpreter:
                         return Enum(enum_name, var_name, args if args else None)
                     return constructor
                 self.env.define(f"{node.name}_{variant_name}", 
-                              make_variant(node.name, variant_name), 
-                              is_const=True)
+                                make_variant(node.name, variant_name), 
+                                is_const=True)
             return None
-
+        
         elif isinstance(node, TypeAlias):
             self.env.types[node.name] = node.type_expr
             return None
@@ -546,6 +586,12 @@ class Interpreter:
                 if node.member in obj.fields:
                     return obj.fields[node.member]
                 raise RuntimeError(f"Struct {obj.struct_name} has no field '{node.member}'")
+            elif isinstance(obj, Union):
+                # For unions, you can only access the active field
+                if node.member == obj.active_field:
+                    return obj.value
+                else:
+                    raise RuntimeError(f"Union field '{node.member}' is not active (active field is '{obj.active_field}')")
             elif isinstance(obj, dict):
                 return obj.get(node.member)
             else:

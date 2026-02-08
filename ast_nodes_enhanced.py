@@ -429,3 +429,31 @@ class CompilerDirective(Node):
         super().__init__()
         self.directive = directive
         self.args = args or []
+
+class UnionDef(Node):
+    """union Color { r: uint8, g: uint8, b: uint8 }"""
+    def __init__(self, name, fields):
+        super().__init__()
+        self.name = name
+        self.fields = fields  # list of (field_name, type)
+
+class TypedefUnion(Node):
+    """typedef union Color { r: uint8, g: uint8, b: uint8 }"""
+    def __init__(self, name, fields):
+        super().__init__()
+        self.name = name
+        self.fields = fields
+
+class AnonymousUnion(Node):
+    """Anonymous union inside a struct"""
+    def __init__(self, fields):
+        super().__init__()
+        self.fields = fields  # list of (field_name, type)
+
+class UnionLiteral(Node):
+    """Color { r: 255 } - initializing a union (only one field at a time)"""
+    def __init__(self, union_name, field_name, value):
+        super().__init__()
+        self.union_name = union_name
+        self.field_name = field_name
+        self.value = value

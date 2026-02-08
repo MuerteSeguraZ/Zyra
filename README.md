@@ -1,6 +1,6 @@
 # Enhanced Programming Language
 
-A modern, feature-rich programming language with strong type support, pattern matching, and Vale-inspired design principles.
+A modern, feature-rich programming language with strong type support, pattern matching, unions, and Vale-inspired design principles.
 
 ## Features
 
@@ -90,16 +90,84 @@ dec add = |a, b| a + b
 ```
 
 ### Data Structures
+
+#### Structs
 ```javascript
-// Structs
+// Basic struct
 struct Point {
     x: int32,
     y: int32
 }
 
 dec p = Point { x: 10, y: 20 }
+print(p.x)  // 10
 
-// Enums
+// Typedef struct with default values
+typedef struct Color {
+    r: uint8 = 0,
+    g: uint8 = 0,
+    b: uint8 = 0,
+    a: uint8 = 255
+}
+
+dec red = Color { r: 255 }          // Other fields use defaults
+dec green = Color { g: 255, a: 128 }
+
+// Using keyword names as fields (e.g., 'type', 'static', 'const')
+typedef struct Metadata {
+    type: String,      // 'type' is a keyword but can be used as field name
+    static: bool,
+    const: bool
+}
+
+dec meta = Metadata { 
+    type: "function", 
+    static: true, 
+    const: false 
+}
+print(meta.type)  // Access keyword-named fields normally
+```
+
+#### Unions
+```javascript
+// Basic union - only one field active at a time
+union Color {
+    r: uint8,
+    g: uint8,
+    b: uint8
+}
+
+dec red = Color { r: 255 }
+print(red.r)  // 255
+// print(red.g)  // ERROR: field 'g' is not active
+
+// Typedef union
+typedef union Value {
+    i: int32,
+    f: float32,
+    s: String
+}
+
+dec int_val = Value { i: 42 }
+print(int_val.i)  // 42
+
+// Struct with anonymous union
+typedef struct Packet {
+    type: uint8,
+    union {
+        data_int: int32,
+        data_float: float32
+    }
+}
+
+dec packet = Packet { type: 1, data_int: 100 }
+print(packet.type)      // 1
+print(packet.data_int)  // 100
+// print(packet.data_float)  // ERROR: not the active union field
+```
+
+#### Enums
+```javascript
 enum Color {
     Red,
     Green,
@@ -238,7 +306,7 @@ p.age = 26
 #### Array Slicing
 ```javascript
 dec arr = [1, 2, 3, 4, 5]
-// dec slice = arr[1:4]      // [2, 3, 4]
+dec slice = arr[1:4]      // [2, 3, 4]
 // dec every_other = arr[::2] // [1, 3, 5]
 ```
 
@@ -247,13 +315,37 @@ dec arr = [1, 2, 3, 4, 5]
 // obj.method1().method2().method3()
 ```
 
+#### Keywords as Identifiers
+The language supports using keywords as field names, variable names, and member names in appropriate contexts:
+
+```javascript
+// Keywords as struct field names
+typedef struct Config {
+    type: String,
+    const: bool,
+    static: bool,
+    import: String
+}
+
+dec config = Config { 
+    type: "module", 
+    const: true, 
+    static: false,
+    import: "std"
+}
+
+// Access keyword-named fields
+print(config.type)
+print(config.const)
+```
+
 ## Installation & Usage
 
 ### Running Programs
 
 ```bash
 # Execute a file
-python3 main.py program.lang
+python3 main.py program.zy
 
 # Interactive REPL
 python3 main.py
@@ -267,12 +359,12 @@ python3 main.py
 ## File Structure
 
 ```
-tokenizer.py           - Lexical analysis
-ast_nodes_enhanced.py  - AST node definitions
-parser_enhanced.py     - Syntax analysis
-interpreter_enhanced.py - Runtime execution
-main.py                - Main entry point & REPL
-examples.lang          - Example programs
+tokenizer.py              - Lexical analysis
+ast_nodes_enhanced.py     - AST node definitions
+parser_enhanced.py        - Syntax analysis
+interpreter_enhanced.py   - Runtime execution
+main.py                   - Main entry point & REPL
+examples.zy               - Example programs
 ```
 
 ## Language Philosophy
@@ -280,10 +372,12 @@ examples.lang          - Example programs
 This language is designed with the following principles:
 
 1. **Safety**: Strong typing with overflow protection for integer types
-2. **Expressiveness**: Modern syntax with pattern matching and functional features
-3. **Performance**: Efficient integer operations with explicit bit sizes
-4. **Clarity**: Clear, readable syntax inspired by modern languages
-5. **Practicality**: Built-in support for common programming patterns
+2. **Memory Safety**: Unions enforce single-field access to prevent undefined behavior
+3. **Expressiveness**: Modern syntax with pattern matching and functional features
+4. **Performance**: Efficient integer operations with explicit bit sizes
+5. **Clarity**: Clear, readable syntax inspired by modern languages
+6. **Practicality**: Built-in support for common programming patterns
+7. **Flexibility**: Keywords can be used as identifiers in appropriate contexts
 
 ## Examples
 
@@ -319,11 +413,13 @@ fnc factorial(n) {
 print(factorial(5))  // 120
 ```
 
-### Struct Example
+### Struct with Default Values
 ```javascript
-struct Rectangle {
+typedef struct Rectangle {
     width: int32,
-    height: int32
+    height: int32,
+    color: String = "black",
+    filled: bool = false
 }
 
 fnc area(rect) {
@@ -331,7 +427,88 @@ fnc area(rect) {
 }
 
 dec r = Rectangle { width: 10, height: 20 }
-print(area(r))  // 200
+print(area(r))      // 200
+print(r.color)      // "black" (default value)
+print(r.filled)     // false (default value)
+```
+
+### Union Example (Tagged Union Pattern)
+```javascript
+typedef union Result {
+    ok: int32,
+    error: String
+}
+
+fnc divide(a, b) {
+    if (b == 0) {
+        return Result { error: "Division by zero" }
+    }
+    return Result { ok: a / b }
+}
+
+dec result = divide(10, 2)
+// Check which field is active before accessing
+```
+
+### Complex Data Structure
+```javascript
+typedef struct Point3D {
+    x: int32,
+    y: int32,
+    z: int32
+}
+
+fnc distance_squared(p1, p2) {
+    dec dx = p2.x - p1.x
+    dec dy = p2.y - p1.y
+    dec dz = p2.z - p1.z
+    return dx*dx + dy*dy + dz*dz
+}
+
+dec origin = Point3D { x: 0, y: 0, z: 0 }
+dec point = Point3D { x: 3, y: 4, z: 0 }
+print(distance_squared(origin, point))  // 25
+```
+
+## Key Language Features
+
+### Union Safety
+Unions enforce that only one field can be active at a time, preventing undefined behavior:
+
+```javascript
+union Status {
+    success: int32,
+    error: String
+}
+
+dec result = Status { success: 42 }
+print(result.success)  // ✓ OK - active field
+// print(result.error)  // ✗ ERROR - inactive field
+```
+
+### Anonymous Unions in Structs
+Combine regular fields with union fields for efficient memory usage:
+
+```javascript
+typedef struct NetworkPacket {
+    protocol: uint8,
+    union {
+        tcp_data: int32,
+        udp_data: float32
+    }
+}
+
+dec packet = NetworkPacket { protocol: 6, tcp_data: 1234 }
+print(packet.protocol)   // 6
+print(packet.tcp_data)   // 1234
+```
+
+### Type Wrapping
+Integer types automatically wrap on overflow:
+
+```javascript
+dec uint8 x = uint8(300)  // Wraps to 44
+dec int8 y = int8(-200)   // Wraps with two's complement
 ```
 
 ## Future Enhancements
@@ -339,15 +516,17 @@ print(area(r))  // 200
 - [ ] Module system with imports/exports
 - [ ] Traits and implementations
 - [ ] Generic types
-- [ ] Compile to bytecode
+- [ ] Enum variant destructuring in match
 - [ ] Standard library
 - [ ] Package manager
-- [ ] Better error messages with stack traces
+- [ ] Better error messages with stack traces and line numbers
 - [ ] Debugger support
 - [ ] IDE integration
 - [ ] Optimizing compiler
 - [ ] Concurrency primitives
 - [ ] Memory management options
+- [ ] Full string interpolation support
+- [ ] Array comprehensions
 
 ## Comparison with Vale
 
@@ -357,6 +536,18 @@ While inspired by Vale's philosophy, this language focuses on:
 - Gradual type system
 - Pattern matching as a first-class feature
 - Flexible integer types for system programming
+- C-style unions with safety enforcement
+
+## Recent Updates
+
+### v0.2.0
+- ✅ Added `typedef struct` with default field values
+- ✅ Added unions (`union` and `typedef union`)
+- ✅ Added anonymous unions inside structs
+- ✅ Union field access safety enforcement
+- ✅ Support for keywords as identifiers (field names, member names, etc.)
+- ✅ Enhanced parser to handle keyword tokens in identifier contexts
+- ✅ Improved error handling for union operations
 
 ## Contributing
 
@@ -367,3 +558,5 @@ This is an experimental language designed for learning and exploration. Contribu
 MIT License - Feel free to use, modify, and distribute.
 
 ---
+
+**Note**: This language is under active development. Features and syntax may change. See `examples.zy` for comprehensive usage examples.

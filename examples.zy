@@ -118,7 +118,7 @@ dec fruits = {"apple", "banana", "orange"}
 dec veggies = {"carrot", "banana", "lettuce"}
 
 // Set operations
-dec union = fruits + veggies
+dec unity = fruits + veggies
 dec intersection = fruits * veggies
 print(intersection)
 
@@ -576,6 +576,44 @@ dec point = Point { x: 3, y: 4 }
 dec dist_sq = distance(origin, point)
 print(dist_sq)  // 25 (3² + 4² = 9 + 16 = 25)
 
-print("\n=== Typedef Struct Tests Completed! ===")
+// ========================================
+// Example 22: Unions
+// ========================================
+print("\n=== Union Tests ===")
+
+union Color {
+    r: uint8,
+    g: uint8,
+    b: uint8
+}
+
+dec red = Color { r: 255 }
+print(red.r)  // 255
+// print(red.g)  // Error: field not active (tested, works, commenting to proceed with tests)
+
+// Typedef union
+typedef union Value {
+    i: int32,
+    f: float32,
+    s: String
+}
+
+dec int_val = Value { i: 42 }
+print(int_val.i)  // 42
+
+// Struct with anonymous union
+typedef struct Packet {
+    type: uint8,
+    union {
+        data_int: int32,
+        data_float: float32
+    }
+}
+
+dec packet = Packet { type: 1, data_int: 100 }
+print(packet.type)      // 1
+print(packet.data_int)  // 100
+
+print("\n=== Union Tests Completed! ===")
 
 print("\n=== All examples completed! ===")
