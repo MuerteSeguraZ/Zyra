@@ -1,0 +1,129 @@
+// stdlib/math.zy - Mathematical Functions
+
+// Constants
+const PI = 3.141592653589793
+const E = 2.718281828459045
+const TAU = 6.283185307179586
+const GOLDEN_RATIO = 1.618033988749895
+
+// Basic operations
+fnc add(x, y) {
+    return x + y
+}
+
+fnc subtract(x, y) {
+    return x - y
+}
+
+fnc multiply(x, y) {
+    return x * y
+}
+
+fnc divide(x, y) {
+    return x / y
+}
+
+fnc power(base, exp) {
+    return base ** exp
+}
+
+fnc sqrt(x) {
+    return x ** 0.5
+}
+
+fnc square(x) {
+    return x * x
+}
+
+fnc cube(x) {
+    return x * x * x
+}
+
+// Advanced functions
+fnc factorial(n) {
+    if (n <= 1) {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
+
+fnc gcd(a, b) {
+    while (b != 0) {
+        dec temp = b
+        b = a % b
+        a = temp
+    }
+    return a
+}
+
+fnc lcm(a, b) {
+    return (a * b) / gcd(a, b)
+}
+
+fnc is_prime(n) {
+    if (n < 2) {
+        return false
+    }
+    if (n == 2) {
+        return true
+    }
+    if (n % 2 == 0) {
+        return false
+    }
+    dec i = 3
+    while (i * i <= n) {
+        if (n % i == 0) {
+            return false
+        }
+        i = i + 2
+    }
+    return true
+}
+
+fnc fibonacci(n) {
+    if (n <= 1) {
+        return n
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+// Utility functions
+fnc clamp(value, min_val, max_val) {
+    if (value < min_val) {
+        return min_val
+    }
+    if (value > max_val) {
+        return max_val
+    }
+    return value
+}
+
+fnc lerp(a, b, t) {
+    return a + (b - a) * t
+}
+
+fnc sign(x) {
+    if (x > 0) {
+        return 1
+    }
+    if (x < 0) {
+        return -1
+    }
+    return 0
+}
+
+fnc is_even(n) {
+    return n % 2 == 0
+}
+
+fnc is_odd(n) {
+    return n % 2 != 0
+}
+
+fnc deg_to_rad(deg) {
+    return deg * PI / 180
+}
+
+fnc rad_to_deg(rad) {
+    return rad * 180 / PI
+}

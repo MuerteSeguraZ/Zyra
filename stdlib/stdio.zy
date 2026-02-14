@@ -1,0 +1,77 @@
+// stdlib/stdio.zy - Standard Input/Output Library
+// Note: print() and printf() are already built-in
+
+fnc println(msg) {
+    print(str(msg) + "\n")
+}
+
+fnc print_line(ch, length) {
+    dec result = ""
+    dec i = 0
+    while (i < length) {
+        result = result + ch
+        i = i + 1
+    }
+    print(result)
+}
+
+fnc banner(text) {
+    dec len_val = len(text)
+    print_line("=", len_val + 4)
+    print("\n")
+    print("  " + text + "\n")
+    print_line("=", len_val + 4)
+    print("\n")
+}
+
+fnc print_array(arr) {
+    printf("[")
+    dec first = true
+    dec i = 0
+    while (i < len(arr)) {
+        dec item = arr[i]
+        if (!first) {
+            printf(", ")
+        }
+        printf("%s", str(item))
+        first = false
+        i = i + 1
+    }
+    printf("]")
+}
+
+fnc print_array_lines(arr) {
+    dec i = 0
+    while (i < len(arr)) {
+        println(arr[i])
+        i = i + 1
+    }
+}
+
+fnc repeat_str(s, count) {
+    dec result = ""
+    dec i = 0
+    while (i < count) {
+        result = result + s
+        i = i + 1
+    }
+    return result
+}
+
+fnc pad_left(s, width, ch) {
+    dec len_val = len(str(s))
+    if (len_val >= width) {
+        return str(s)
+    }
+    dec padding = repeat_str(ch, width - len_val)
+    return padding + str(s)
+}
+
+fnc pad_right(s, width, ch) {
+    dec len_val = len(str(s))
+    if (len_val >= width) {
+        return str(s)
+    }
+    dec padding = repeat_str(ch, width - len_val)
+    return str(s) + padding
+}

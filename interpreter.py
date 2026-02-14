@@ -209,27 +209,52 @@ class Interpreter:
 
     def load_module(self, filepath):
         """Load a module from a file and return its environment"""
-        # Resolve relative path
-        if not os.path.isabs(filepath):
-            filepath = os.path.join(self.current_file_dir, filepath)
+        import sys
+    
+        # If it's already an absolute path, use it directly
+        if os.path.isabs(filepath):
+            final_filepath = os.path.normpath(filepath)
+        else:
+            # Define search paths in order of priority
+            search_paths = [
+                self.current_file_dir,  # 1. Current file's directory (for relative imports)
+                os.getcwd(),            # 2. Current working directory
+                os.environ.get('ZYRA_PATH', ''),  # 3. ZYRA_PATH environment variable
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stdlib'),  # 4. Interpreter's stdlib
+                os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'stdlib'),  # 5. Main script's stdlib
+            ]
         
-        # Normalize path
-        filepath = os.path.normpath(filepath)
+            # Try to find the file in search paths
+            final_filepath = None
+            for search_path in search_paths:
+                if not search_path:
+                    continue
+            
+                candidate = os.path.join(search_path, filepath)
+                candidate = os.path.normpath(candidate)
+                
+                if os.path.exists(candidate):
+                    final_filepath = candidate
+                    break
+            
+            # If not found in any search path, raise error
+            if final_filepath is None:
+                raise RuntimeError(f"Module file not found: {filepath}\nSearched in: {[p for p in search_paths if p]}")
         
-        # Check cache
-        if filepath in self.modules:
-            return self.modules[filepath]
+        # Check cache (use normalized path as key)
+            if final_filepath in self.modules:
+                return self.modules[final_filepath]
         
         # Check if file exists
-        if not os.path.exists(filepath):
-            raise RuntimeError(f"Module file not found: {filepath}")
+        if not os.path.exists(final_filepath):
+            raise RuntimeError(f"Module file not found: {final_filepath}")
         
         # Read file
         try:
-            with open(filepath, 'r') as f:
+            with open(final_filepath, 'r') as f:
                 code = f.read()
         except Exception as e:
-            raise RuntimeError(f"Error reading module {filepath}: {e}")
+            raise RuntimeError(f"Error reading module {final_filepath}: {e}")
         
         # Parse and execute in new environment
         from lexer import tokenize
@@ -240,7 +265,7 @@ class Interpreter:
             parser = Parser(tokens)
             ast = parser.parse()
         except Exception as e:
-            raise RuntimeError(f"Error parsing module {filepath}: {e}")
+            raise RuntimeError(f"Error parsing module {final_filepath}: {e}")
         
         # Create new environment for module
         module_env = Environment(parent=self.global_env)
@@ -250,7 +275,7 @@ class Interpreter:
         prev_dir = self.current_file_dir
         
         # Set module's directory as current for nested imports
-        self.current_file_dir = os.path.dirname(filepath)
+        self.current_file_dir = os.path.dirname(final_filepath)
         self.env = module_env
         
         try:
@@ -262,8 +287,8 @@ class Interpreter:
             self.current_file_dir = prev_dir
         
         # Cache module
-        module = Module(filepath, module_env)
-        self.modules[filepath] = module
+        module = Module(final_filepath, module_env)
+        self.modules[final_filepath] = module
         
         return module
 

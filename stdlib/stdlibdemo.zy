@@ -1,0 +1,48 @@
+// stdlib_demo.zy - Demonstration of Standard Library
+
+// Import standard libraries
+import "stdlib/stdio.zy"
+import "stdlib/math.zy"
+from "stdlib/list.zy" import map, filter, sum, reverse
+
+// Test stdio
+banner("Standard Library Demo")
+
+// Test math
+println("Math Functions:")
+print("Square root of 16: ")
+println(sqrt(16))
+print("5 factorial: ")
+println(factorial(5))
+print("Is 17 prime? ")
+println(is_prime(17))
+print("GCD of 48 and 18: ")
+println(gcd(48, 18))
+
+println("")
+
+// Test list operations
+println("List Operations:")
+dec numbers = [1, 2, 3, 4, 5]
+print("Original list: ")
+print_array(numbers)
+printf("\n")
+
+print("Reversed: ")
+print_array(reverse(numbers))
+println("")
+
+print("Sum: ")
+println(sum(numbers))
+
+// Test formatting
+println("Formatting:")
+print("Padded left: ")
+println(pad_left("42", 10, "0"))
+print("Padded right: ")
+println(pad_right("Hello", 10, "."))
+
+println("")
+print_line("=", 40)
+println("")
+println("Demo complete!")

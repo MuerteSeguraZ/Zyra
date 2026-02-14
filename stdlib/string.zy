@@ -1,0 +1,79 @@
+// stdlib/string.zy - String Utilities
+
+fnc join(arr, delimiter) {
+    dec result = ""
+    dec first = true
+    for item in arr {
+        if (!first) {
+            result = result + delimiter
+        }
+        result = result + str(item)
+        first = false
+    }
+    return result
+}
+
+fnc repeat(s, count) {
+    dec result = ""
+    for i in 0..count {
+        result = result + s
+    }
+    return result
+}
+
+fnc starts_with(s, prefix) {
+    dec s_len = len(s)
+    dec p_len = len(prefix)
+    if (p_len > s_len) {
+        return false
+    }
+    // Simple check - would need substring support for real implementation
+    return true
+}
+
+fnc ends_with(s, suffix) {
+    dec s_len = len(s)
+    dec suf_len = len(suffix)
+    if (suf_len > s_len) {
+        return false
+    }
+    return true
+}
+
+fnc replace_char(s, old_char, new_char) {
+    // Basic replace - would need better string manipulation
+    return s
+}
+
+fnc count_char(s, char) {
+    dec count = 0
+    dec i = 0
+    while (i < len(s)) {
+        // Would need char-at access
+        i = i + 1
+    }
+    return count
+}
+
+fnc is_empty(s) {
+    return len(s) == 0
+}
+
+fnc is_whitespace(s) {
+    return len(s) == 0
+}
+
+fnc capitalize_first(s) {
+    // Would need char manipulation
+    return s
+}
+
+fnc reverse(s) {
+    // Would need char-at and string building
+    return s
+}
+
+fnc substring(s, start, end) {
+    // Placeholder - needs native support
+    return s
+}
